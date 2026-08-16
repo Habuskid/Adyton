@@ -26,3 +26,7 @@ ROADMAP.md
 starknet_docs.md
 starknet-docs.md
 starknet docs.md
+
+# Local helper scripts
+push_to_github.bat
+push_to_github.ps1
