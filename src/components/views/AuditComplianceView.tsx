@@ -9,7 +9,6 @@ export const AuditComplianceView: React.FC = () => {
   const [newAddress, setNewAddress] = useState<string>('');
   const [newPubKey, setNewPubKey] = useState<string>('');
   const [showGrantModal, setShowGrantModal] = useState<boolean>(false);
-  const [activeAuditorView, setActiveAuditorView] = useState<string | null>(auditors[0]?.id || null);
 
   const handleGrant = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,55 +53,63 @@ export const AuditComplianceView: React.FC = () => {
 
       {/* Auditor Viewing Key Management Chamber */}
       <Chamber title="Registered Auditor Viewing Keys" badge={<ProvenBadge label="STARK ECDH Escrow" glow={false} />} noPadding>
-        <table className="chamber-table">
-          <thead>
-            <tr>
-              <th>Auditor Entity</th>
-              <th>Starknet Address</th>
-              <th>Public Key (K = k·G)</th>
-              <th>Granted Date</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {auditors.map((aud) => (
-              <tr key={aud.id}>
-                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{aud.label}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
-                  {aud.starknetAddress.substring(0, 10)}...{aud.starknetAddress.substring(58)}
-                </td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>
-                  {aud.publicKey.substring(0, 12)}...
-                </td>
-                <td style={{ color: 'var(--text-dim)' }}>{aud.grantedAt}</td>
-                <td>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      color: 'var(--bronze)',
-                      padding: '2px 6px',
-                      border: '1px solid var(--bronze)',
-                    }}
-                  >
-                    ACTIVE ESCROW
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="btn-ghost"
-                    style={{ padding: '4px 8px', color: 'var(--error-text)' }}
-                    onClick={() => revokeAuditorAccess(aud.id)}
-                  >
-                    Revoke
-                  </button>
-                </td>
+        {auditors.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>
+            No registered auditor keys yet. Click "+ Grant Auditor Access" to escrow decryption keys to an auditor node.
+          </div>
+        ) : (
+          <table className="chamber-table">
+            <thead>
+              <tr>
+                <th>Auditor Entity</th>
+                <th>Starknet Address</th>
+                <th>Public Key (K = k·G)</th>
+                <th>Granted Date</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {auditors.map((aud) => (
+                <tr key={aud.id}>
+                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{aud.label}</td>
+                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {aud.starknetAddress.length > 20
+                      ? `${aud.starknetAddress.substring(0, 10)}...${aud.starknetAddress.substring(aud.starknetAddress.length - 8)}`
+                      : aud.starknetAddress}
+                  </td>
+                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>
+                    {aud.publicKey.substring(0, 12)}...
+                  </td>
+                  <td style={{ color: 'var(--text-dim)' }}>{aud.grantedAt}</td>
+                  <td>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        color: 'var(--bronze)',
+                        padding: '2px 6px',
+                        border: '1px solid var(--bronze)',
+                      }}
+                    >
+                      ACTIVE ESCROW
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="btn-ghost"
+                      style={{ padding: '4px 8px', color: 'var(--error-text)' }}
+                      onClick={() => revokeAuditorAccess(aud.id)}
+                    >
+                      Revoke
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </Chamber>
 
       {/* Unmasked Auditor View Chamber */}
@@ -117,55 +124,61 @@ export const AuditComplianceView: React.FC = () => {
           </span>
         </div>
 
-        <table className="chamber-table">
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Action Type</th>
-              <th>Asset & Decrypted Amount</th>
-              <th>Counterparty Address</th>
-              <th>Policy Range Check</th>
-              <th>FPI Compliance</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id}>
-                <td style={{ color: 'var(--text-dim)' }}>{tx.timestamp}</td>
-                <td>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      letterSpacing: '0.08em',
-                      padding: '3px 6px',
-                      background: 'var(--bg-chamber-lowest)',
-                      border: '1px solid var(--line)',
-                      color: 'var(--bronze)',
-                    }}
-                  >
-                    {tx.type}
-                  </span>
-                </td>
-                <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
-                  {tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : 'Policy Reconfiguration'}
-                </td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
-                  {tx.recipientOrDepositor}
-                </td>
-                <td>
-                  <span style={{ color: 'var(--bronze)', fontSize: '12px' }}>✓ Range-Checked</span>
-                </td>
-                <td>
-                  <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>
-                    {tx.screeningSignature ? 'FPI SCREENED (0x992b...)' : 'Internal ZK'}
-                  </span>
-                </td>
+        {transactions.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>
+            No transactions in ledger yet.
+          </div>
+        ) : (
+          <table className="chamber-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Action Type</th>
+                <th>Asset & Decrypted Amount</th>
+                <th>Counterparty Address</th>
+                <th>Policy Range Check</th>
+                <th>FPI Compliance</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transactions.map((tx) => (
+                <tr key={tx.id}>
+                  <td style={{ color: 'var(--text-dim)' }}>{tx.timestamp}</td>
+                  <td>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        padding: '3px 6px',
+                        background: 'var(--bg-chamber-lowest)',
+                        border: '1px solid var(--line)',
+                        color: 'var(--bronze)',
+                      }}
+                    >
+                      {tx.type}
+                    </span>
+                  </td>
+                  <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>
+                    {tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : 'Policy Reconfiguration'}
+                  </td>
+                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {tx.recipientOrDepositor}
+                  </td>
+                  <td>
+                    <span style={{ color: 'var(--bronze)', fontSize: '12px' }}>✓ Range-Checked</span>
+                  </td>
+                  <td>
+                    <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>
+                      {tx.screeningSignature ? 'FPI SCREENED (0x992b...)' : 'Internal ZK'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </Chamber>
 
       {/* Grant Access Modal */}

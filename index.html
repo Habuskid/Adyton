@@ -35,22 +35,11 @@
   <script type="text/babel">
     const { useState, useEffect, useContext, createContext } = React;
 
-    // --- State Context ---
-    const initialHoldings = [
-      { symbol: 'USDC', name: 'USD Coin', shieldedAmount: 1250000.0, publicAmount: 250000.0, usdRate: 1.0, notesCount: 4, contractAddress: '0x053c...68a8' },
-      { symbol: 'ETH', name: 'Ethereum', shieldedAmount: 142.5, publicAmount: 12.0, usdRate: 3400.0, notesCount: 3, contractAddress: '0x049d...4dc7' },
-      { symbol: 'STRK', name: 'Starknet Token', shieldedAmount: 48500.0, publicAmount: 5000.0, usdRate: 0.55, notesCount: 2, contractAddress: '0x0471...938d' }
-    ];
-
-    const initialTransactions = [
-      { id: 'tx-001', type: 'DEPOSIT_SHIELD', asset: 'USDC', amount: 500000, recipientOrDepositor: '0x049d...4dc7', timestamp: '2026-08-16 19:42 UTC', status: 'PROVEN', txHash: '0x07f4a2189d2c1e8b76a5e12f8319e5d481b0a9437e28b12f6a9e1d827f3b145a', policyVerified: true, screeningSignature: '0x992b...fpi_screened' },
-      { id: 'tx-002', type: 'PRIVATE_TRANSFER', asset: 'ETH', amount: 15.0, recipientOrDepositor: '0x02a2...69d5', timestamp: '2026-08-16 16:15 UTC', status: 'PROVEN', txHash: '0x018b45f18c21a4e9b817d23a54b918f0c3d9a1b8e4f1a2d7c9e0a1f2b3c4d5e6', policyVerified: true },
-      { id: 'tx-003', type: 'POLICY_UPDATE', asset: 'USDC', amount: 0, recipientOrDepositor: 'Adyton Governance (2/3)', timestamp: '2026-08-15 11:20 UTC', status: 'PROVEN', txHash: '0x03d8a9f2b1e7c4a0d9b8e1f2c3a4b5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2', policyVerified: true }
-    ];
-
-    const initialAuditors = [
-      { id: 'aud-1', label: 'Ernst & Young Audit Node A', starknetAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7', publicKey: '0x068f21a9e8b7c4d1...stark_curve_K', grantedAt: '2026-08-10', active: true },
-      { id: 'aud-2', label: 'Internal Compliance & Risk Dept', starknetAddress: '0x02a24c562bfcb3b0f5cd3e14df1a41db89b251b14ea17dc4dbed4b3d73b069d5', publicKey: '0x041b89f2d1e3a5c7...stark_curve_K', grantedAt: '2026-08-14', active: true }
+    // --- Real State Initializers ---
+    const defaultHoldings = [
+      { symbol: 'USDC', name: 'USD Coin', shieldedAmount: 0.0, publicAmount: 0.0, usdRate: 1.0, notesCount: 0, contractAddress: '0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8' },
+      { symbol: 'ETH', name: 'Ethereum', shieldedAmount: 0.0, publicAmount: 0.0, usdRate: 3400.0, notesCount: 0, contractAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7' },
+      { symbol: 'STRK', name: 'Starknet Token', shieldedAmount: 0.0, publicAmount: 0.0, usdRate: 0.55, notesCount: 0, contractAddress: '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d' }
     ];
 
     const VaultContext = createContext(null);
@@ -58,21 +47,56 @@
     const VaultProvider = ({ children }) => {
       const [activeTab, setActiveTab] = useState('landing');
       const [isBalanceRevealed, setIsBalanceRevealed] = useState(false);
-      const [holdings, setHoldings] = useState(initialHoldings);
-      const [transactions, setTransactions] = useState(initialTransactions);
-      const [auditors, setAuditors] = useState(initialAuditors);
-      const [connectedWallet, setConnectedWallet] = useState({ address: '0x07f12a3b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f', isPrivacyReady: true });
-      const [policy, setPolicy] = useState({
-        maxTransactionCap: 500000,
-        dailyOutflowLimit: 2000000,
-        approvedRecipients: [
-          { address: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7', label: 'Institutional Payroll Node', addedAt: '2026-08-12' },
-          { address: '0x02a24c562bfcb3b0f5cd3e14df1a41db89b251b14ea17dc4dbed4b3d73b069d5', label: 'Treasury Reserve Multisig', addedAt: '2026-08-14' }
-        ],
-        multiSignerThreshold: { required: 2, total: 3 },
-        lastUpdated: '2026-08-15 11:20 UTC',
-        policyContractAddress: '0x01a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8'
+      const [holdings, setHoldings] = useState(() => {
+        try {
+          const saved = localStorage.getItem('adyton_holdings');
+          return saved ? JSON.parse(saved) : defaultHoldings;
+        } catch { return defaultHoldings; }
       });
+      const [transactions, setTransactions] = useState(() => {
+        try {
+          const saved = localStorage.getItem('adyton_transactions');
+          return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+      });
+      const [auditors, setAuditors] = useState(() => {
+        try {
+          const saved = localStorage.getItem('adyton_auditors');
+          return saved ? JSON.parse(saved) : [];
+        } catch { return []; }
+      });
+      const [connectedWallet, setConnectedWallet] = useState(null);
+      const [policy, setPolicy] = useState(() => {
+        try {
+          const saved = localStorage.getItem('adyton_policy');
+          if (saved) return JSON.parse(saved);
+        } catch {}
+        return {
+          maxTransactionCap: 100000,
+          dailyOutflowLimit: 500000,
+          approvedRecipients: [],
+          multiSignerThreshold: { required: 1, total: 1 },
+          lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
+          policyContractAddress: '0x040337b1af3c663e86e333bab5a4b28da8d4652a15a69beee2b677776ffe812a'
+        };
+      });
+
+      useEffect(() => { try { localStorage.setItem('adyton_holdings', JSON.stringify(holdings)); } catch {} }, [holdings]);
+      useEffect(() => { try { localStorage.setItem('adyton_transactions', JSON.stringify(transactions)); } catch {} }, [transactions]);
+      useEffect(() => { try { localStorage.setItem('adyton_auditors', JSON.stringify(auditors)); } catch {} }, [auditors]);
+      useEffect(() => { try { localStorage.setItem('adyton_policy', JSON.stringify(policy)); } catch {} }, [policy]);
+
+      const connectWallet = async () => {
+        if (window.starknet) {
+          try {
+            await window.starknet.enable();
+            setConnectedWallet({ address: window.starknet.selectedAddress || '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7', isPrivacyReady: true });
+            return;
+          } catch (e) {}
+        }
+        // Simulated connection fallback for development
+        setConnectedWallet({ address: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7', isPrivacyReady: true });
+      };
 
       const toggleBalanceReveal = () => setIsBalanceRevealed(prev => !prev);
       
@@ -467,6 +491,32 @@
               </tbody>
             </table>
           </Chamber>
+
+          <Chamber title="Vault Execution History & Proof Logs" badge={<ProvenBadge label="ZK Verified" />} noPadding>
+            {transactions.length === 0 ? (
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                No transactions recorded yet. Shield assets or initiate a transfer to begin.
+              </div>
+            ) : (
+              <table className="chamber-table">
+                <thead>
+                  <tr><th>Type</th><th>Asset / Amount</th><th>Counterparty</th><th>Timestamp</th><th>Policy Check</th><th>Tx Hash</th></tr>
+                </thead>
+                <tbody>
+                  {transactions.map(tx => (
+                    <tr key={tx.id}>
+                      <td><span style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 700, padding: '3px 6px', background: 'var(--bg-chamber-lowest)', border: '1px solid var(--line)', color: tx.type === 'DEPOSIT_SHIELD' ? 'var(--bronze)' : 'var(--text-primary)' }}>{tx.type.replace('_', ' ')}</span></td>
+                      <td className={isBalanceRevealed ? 'revealed' : 'obscured-text'}>{tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : '—'}</td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>{tx.recipientOrDepositor.length > 20 ? `${tx.recipientOrDepositor.substring(0, 10)}...${tx.recipientOrDepositor.substring(tx.recipientOrDepositor.length - 8)}` : tx.recipientOrDepositor}</td>
+                      <td style={{ color: 'var(--text-dim)' }}>{tx.timestamp}</td>
+                      <td><span style={{ color: 'var(--bronze)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}><span className="proven-badge">P</span><span style={{ fontSize: '11px' }}>Policy Compliant</span></span></td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>{tx.txHash.substring(0, 10)}...{tx.txHash.substring(58)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Chamber>
         </div>
       );
     };
@@ -474,7 +524,7 @@
     const DepositShieldView = () => {
       const { holdings, depositAsset, setActiveTab } = useVault();
       const [selectedAsset, setSelectedAsset] = useState('USDC');
-      const [amount, setAmount] = useState('50000');
+      const [amount, setAmount] = useState('');
       const [isProcessing, setIsProcessing] = useState(false);
       const [step, setStep] = useState(1);
       const [txSuccess, setTxSuccess] = useState(null);
@@ -666,8 +716,8 @@
     const TransferProofView = () => {
       const { holdings, policy, executeTransfer, setActiveTab } = useVault();
       const [selectedAsset, setSelectedAsset] = useState('USDC');
-      const [recipient, setRecipient] = useState(policy.approvedRecipients[0]?.address || '0x049d...4dc7');
-      const [amount, setAmount] = useState('25000');
+      const [recipient, setRecipient] = useState(policy.approvedRecipients[0]?.address || '');
+      const [amount, setAmount] = useState('');
       const [isProving, setIsProving] = useState(false);
       const [provingStep, setProvingStep] = useState('');
       const [errorMsg, setErrorMsg] = useState(null);
@@ -676,7 +726,7 @@
       const activeHolding = holdings.find(h => h.symbol === selectedAsset);
       const numAmount = parseFloat(amount) || 0;
       const usdValue = numAmount * (activeHolding?.usdRate || 1);
-      const isOverCap = usdValue > policy.maxTransactionCap;
+      const isOverCap = numAmount > 0 && usdValue > policy.maxTransactionCap;
 
       const handleTransfer = async () => {
         setErrorMsg(null);
@@ -837,37 +887,49 @@
           </header>
 
           <Chamber title="Registered Auditor Viewing Keys" badge={<ProvenBadge label="STARK ECDH Escrow" glow={false} />} noPadding>
-            <table className="chamber-table">
-              <thead><tr><th>Auditor Entity</th><th>Starknet Address</th><th>Public Key (K = k·G)</th><th>Granted Date</th><th>Action</th></tr></thead>
-              <tbody>
-                {auditors.map(aud => (
-                  <tr key={aud.id}>
-                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{aud.label}</td>
-                    <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>{aud.starknetAddress}</td>
-                    <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>{aud.publicKey}</td>
-                    <td style={{ color: 'var(--text-dim)' }}>{aud.grantedAt}</td>
-                    <td><button className="btn-ghost" style={{ padding: '4px 8px', color: 'var(--error-text)' }} onClick={() => revokeAuditorAccess(aud.id)}>Revoke</button></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {auditors.length === 0 ? (
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                No registered auditor keys yet. Click "+ Grant Auditor Access" to escrow decryption keys to an auditor node.
+              </div>
+            ) : (
+              <table className="chamber-table">
+                <thead><tr><th>Auditor Entity</th><th>Starknet Address</th><th>Public Key (K = k·G)</th><th>Granted Date</th><th>Action</th></tr></thead>
+                <tbody>
+                  {auditors.map(aud => (
+                    <tr key={aud.id}>
+                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{aud.label}</td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>{aud.starknetAddress}</td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>{aud.publicKey}</td>
+                      <td style={{ color: 'var(--text-dim)' }}>{aud.grantedAt}</td>
+                      <td><button className="btn-ghost" style={{ padding: '4px 8px', color: 'var(--error-text)' }} onClick={() => revokeAuditorAccess(aud.id)}>Revoke</button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </Chamber>
 
           <Chamber title="Decrypted Audit Ledger (Auditor Perspective)" badge={<ProvenBadge label="Viewing Key Active" />} noPadding>
-            <table className="chamber-table">
-              <thead><tr><th>Timestamp</th><th>Action Type</th><th>Asset & Decrypted Amount</th><th>Counterparty Address</th><th>Policy Check</th></tr></thead>
-              <tbody>
-                {transactions.map(tx => (
-                  <tr key={tx.id}>
-                    <td style={{ color: 'var(--text-dim)' }}>{tx.timestamp}</td>
-                    <td><span style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 700, padding: '3px 6px', background: 'var(--bg-chamber-lowest)', border: '1px solid var(--line)', color: 'var(--bronze)' }}>{tx.type}</span></td>
-                    <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : 'Policy Update'}</td>
-                    <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>{tx.recipientOrDepositor}</td>
-                    <td><span style={{ color: 'var(--bronze)', fontSize: '12px' }}>✓ Range-Checked</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {transactions.length === 0 ? (
+              <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>
+                No transactions in ledger yet. Shield assets or initiate a transfer to begin.
+              </div>
+            ) : (
+              <table className="chamber-table">
+                <thead><tr><th>Timestamp</th><th>Action Type</th><th>Asset & Decrypted Amount</th><th>Counterparty Address</th><th>Policy Check</th></tr></thead>
+                <tbody>
+                  {transactions.map(tx => (
+                    <tr key={tx.id}>
+                      <td style={{ color: 'var(--text-dim)' }}>{tx.timestamp}</td>
+                      <td><span style={{ fontFamily: 'var(--font-sans)', fontSize: '10px', fontWeight: 700, padding: '3px 6px', background: 'var(--bg-chamber-lowest)', border: '1px solid var(--line)', color: 'var(--bronze)' }}>{tx.type}</span></td>
+                      <td style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : 'Policy Update'}</td>
+                      <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>{tx.recipientOrDepositor}</td>
+                      <td><span style={{ color: 'var(--bronze)', fontSize: '12px' }}>✓ Range-Checked</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </Chamber>
 
           {showModal && (

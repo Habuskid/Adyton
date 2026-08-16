@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { VaultState, ActiveTab, AssetSymbol, VaultTransaction, AuditorAccess } from '../types';
+import { VaultState, ActiveTab, AssetSymbol, VaultTransaction, AuditorAccess, AssetHolding } from '../types';
 import { CURRENT_CONFIG } from '../starknet/config';
 import { shieldTokens, executePrivateTransfer } from '../starknet/strk20';
 import { verifyPolicyPredicate } from '../starknet/policyVerifier';
@@ -22,93 +22,36 @@ interface VaultContextType extends VaultState {
   grantAuditorAccess: (label: string, address: string, pubKey: string) => Promise<boolean>;
   revokeAuditorAccess: (id: string) => void;
   connectWallet: () => Promise<void>;
+  refreshBalances: () => Promise<void>;
 }
 
-const initialHoldings = [
+const defaultHoldings: AssetHolding[] = [
   {
-    symbol: 'USDC' as AssetSymbol,
+    symbol: 'USDC',
     name: 'USD Coin',
-    shieldedAmount: 1250000.0,
-    publicAmount: 250000.0,
+    shieldedAmount: 0.0,
+    publicAmount: 0.0,
     usdRate: 1.0,
-    notesCount: 4,
+    notesCount: 0,
     contractAddress: CURRENT_CONFIG.tokens.USDC,
   },
   {
-    symbol: 'ETH' as AssetSymbol,
+    symbol: 'ETH',
     name: 'Ethereum',
-    shieldedAmount: 142.5,
-    publicAmount: 12.0,
+    shieldedAmount: 0.0,
+    publicAmount: 0.0,
     usdRate: 3400.0,
-    notesCount: 3,
+    notesCount: 0,
     contractAddress: CURRENT_CONFIG.tokens.ETH,
   },
   {
-    symbol: 'STRK' as AssetSymbol,
+    symbol: 'STRK',
     name: 'Starknet Token',
-    shieldedAmount: 48500.0,
-    publicAmount: 5000.0,
+    shieldedAmount: 0.0,
+    publicAmount: 0.0,
     usdRate: 0.55,
-    notesCount: 2,
+    notesCount: 0,
     contractAddress: CURRENT_CONFIG.tokens.STRK,
-  },
-];
-
-const initialTransactions: VaultTransaction[] = [
-  {
-    id: 'tx-001',
-    type: 'DEPOSIT_SHIELD',
-    asset: 'USDC',
-    amount: 500000,
-    recipientOrDepositor: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-    timestamp: '2026-08-16 19:42 UTC',
-    status: 'PROVEN',
-    txHash: '0x07f4a2189d2c1e8b76a5e12f8319e5d481b0a9437e28b12f6a9e1d827f3b145a',
-    policyVerified: true,
-    screeningSignature: '0x992b...fpi_screened',
-    proofFacts: ['VIRTUAL_SNOS_FACT_0x8f21'],
-  },
-  {
-    id: 'tx-002',
-    type: 'PRIVATE_TRANSFER',
-    asset: 'ETH',
-    amount: 15.0,
-    recipientOrDepositor: '0x02a24c562bfcb3b0f5cd3e14df1a41db89b251b14ea17dc4dbed4b3d73b069d5',
-    timestamp: '2026-08-16 16:15 UTC',
-    status: 'PROVEN',
-    txHash: '0x018b45f18c21a4e9b817d23a54b918f0c3d9a1b8e4f1a2d7c9e0a1f2b3c4d5e6',
-    policyVerified: true,
-    proofFacts: ['VIRTUAL_SNOS_FACT_0x3e19', 'STWO_NOTE_SPEND_FACT_0x7b11'],
-  },
-  {
-    id: 'tx-003',
-    type: 'POLICY_UPDATE',
-    asset: 'USDC',
-    amount: 0,
-    recipientOrDepositor: 'Adyton Governance Threshold (2/3)',
-    timestamp: '2026-08-15 11:20 UTC',
-    status: 'PROVEN',
-    txHash: '0x03d8a9f2b1e7c4a0d9b8e1f2c3a4b5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
-    policyVerified: true,
-  },
-];
-
-const initialAuditors: AuditorAccess[] = [
-  {
-    id: 'aud-1',
-    label: 'Ernst & Young Audit Node A',
-    starknetAddress: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-    publicKey: '0x068f21a9e8b7c4d1...stark_curve_K',
-    grantedAt: '2026-08-10',
-    active: true,
-  },
-  {
-    id: 'aud-2',
-    label: 'Internal Compliance & Risk Dept',
-    starknetAddress: '0x02a24c562bfcb3b0f5cd3e14df1a41db89b251b14ea17dc4dbed4b3d73b069d5',
-    publicKey: '0x041b89f2d1e3a5c7...stark_curve_K',
-    grantedAt: '2026-08-14',
-    active: true,
   },
 ];
 
@@ -117,33 +60,74 @@ const VaultContext = createContext<VaultContextType | undefined>(undefined);
 export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('landing');
   const [isBalanceRevealed, setIsBalanceRevealed] = useState(false);
-  const [holdings, setHoldings] = useState(initialHoldings);
-  const [transactions, setTransactions] = useState(initialTransactions);
-  const [auditors, setAuditors] = useState(initialAuditors);
-  const [connectedWallet, setConnectedWallet] = useState<{ address: string; isPrivacyReady: boolean } | undefined>({
-    address: '0x07f12a3b8c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f',
-    isPrivacyReady: true,
+  const [connectedWallet, setConnectedWallet] = useState<{ address: string; isPrivacyReady: boolean } | undefined>(undefined);
+
+  // Dynamic state with local storage persistence
+  const [holdings, setHoldings] = useState<AssetHolding[]>(() => {
+    try {
+      const saved = localStorage.getItem('adyton_holdings');
+      return saved ? JSON.parse(saved) : defaultHoldings;
+    } catch {
+      return defaultHoldings;
+    }
   });
 
-  const [policy, setPolicy] = useState<VaultState['policy']>({
-    maxTransactionCap: 500000,
-    dailyOutflowLimit: 2000000,
-    approvedRecipients: [
-      {
-        address: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-        label: 'Institutional Payroll Node',
-        addedAt: '2026-08-12',
-      },
-      {
-        address: '0x02a24c562bfcb3b0f5cd3e14df1a41db89b251b14ea17dc4dbed4b3d73b069d5',
-        label: 'Treasury Reserve Multisig',
-        addedAt: '2026-08-14',
-      },
-    ],
-    multiSignerThreshold: { required: 2, total: 3 },
-    lastUpdated: '2026-08-15 11:20 UTC',
-    policyContractAddress: CURRENT_CONFIG.policyContractAddress,
+  const [transactions, setTransactions] = useState<VaultTransaction[]>(() => {
+    try {
+      const saved = localStorage.getItem('adyton_transactions');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
   });
+
+  const [auditors, setAuditors] = useState<AuditorAccess[]>(() => {
+    try {
+      const saved = localStorage.getItem('adyton_auditors');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [policy, setPolicy] = useState<VaultState['policy']>(() => {
+    try {
+      const saved = localStorage.getItem('adyton_policy');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      maxTransactionCap: 100000,
+      dailyOutflowLimit: 500000,
+      approvedRecipients: [],
+      multiSignerThreshold: { required: 1, total: 1 },
+      lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
+      policyContractAddress: CURRENT_CONFIG.policyContractAddress,
+    };
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('adyton_holdings', JSON.stringify(holdings));
+    } catch {}
+  }, [holdings]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('adyton_transactions', JSON.stringify(transactions));
+    } catch {}
+  }, [transactions]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('adyton_auditors', JSON.stringify(auditors));
+    } catch {}
+  }, [auditors]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('adyton_policy', JSON.stringify(policy));
+    } catch {}
+  }, [policy]);
 
   const toggleBalanceReveal = () => setIsBalanceRevealed((prev) => !prev);
 
@@ -154,23 +138,51 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         address: res.address,
         isPrivacyReady: res.isPrivacyReady,
       });
+      await refreshBalances();
+    }
+  };
+
+  const refreshBalances = async () => {
+    if (typeof window !== 'undefined' && (window as any).starknet?.account) {
+      const account = (window as any).starknet.account;
+      if (typeof account.strk20Balances === 'function') {
+        try {
+          const balances = await account.strk20Balances([
+            CURRENT_CONFIG.tokens.USDC,
+            CURRENT_CONFIG.tokens.ETH,
+            CURRENT_CONFIG.tokens.STRK,
+          ]);
+          setHoldings((prev) =>
+            prev.map((h) => {
+              const liveBal = balances.find((b: any) => b.token.toLowerCase() === h.contractAddress.toLowerCase());
+              if (liveBal) {
+                return { ...h, shieldedAmount: parseFloat(liveBal.balance) || 0 };
+              }
+              return h;
+            })
+          );
+        } catch (err) {
+          console.warn('Live balance query error:', err);
+        }
+      }
     }
   };
 
   const updatePolicy = async (maxCap: number, dailyLimit: number): Promise<boolean> => {
-    setPolicy((prev) => ({
-      ...prev,
+    const updatedPolicy = {
+      ...policy,
       maxTransactionCap: maxCap,
       dailyOutflowLimit: dailyLimit,
       lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
-    }));
+    };
+    setPolicy(updatedPolicy);
 
     const newTx: VaultTransaction = {
       id: `tx-${Date.now()}`,
       type: 'POLICY_UPDATE',
       asset: 'USDC',
       amount: 0,
-      recipientOrDepositor: 'Adyton Governance Threshold',
+      recipientOrDepositor: connectedWallet?.address || 'Vault Owner',
       timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
       status: 'PROVEN',
       txHash: '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
@@ -187,7 +199,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ...prev.approvedRecipients,
         {
           address,
-          label: label || 'Custom Approved Recipient',
+          label: label || 'Approved Recipient',
           addedAt: new Date().toISOString().substring(0, 10),
         },
       ],
@@ -222,7 +234,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       type: 'DEPOSIT_SHIELD',
       asset,
       amount,
-      recipientOrDepositor: connectedWallet?.address || '0x049d3657...',
+      recipientOrDepositor: connectedWallet?.address || '0x049d...vault',
       timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
       status: 'PROVEN',
       txHash: res.txHash,
@@ -242,7 +254,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!targetAsset || targetAsset.shieldedAmount < amount) {
       return {
         success: false,
-        error: `Insufficient shielded balance in vault for ${asset}. Available: ${targetAsset?.shieldedAmount || 0} ${asset}`,
+        error: `Insufficient shielded balance for ${asset}. Available: ${targetAsset?.shieldedAmount || 0} ${asset}`,
       };
     }
 
@@ -264,7 +276,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         h.symbol === asset
           ? {
               ...h,
-              shieldedAmount: h.shieldedAmount - amount,
+              shieldedAmount: Math.max(0, h.shieldedAmount - amount),
             }
           : h
       )
@@ -306,9 +318,9 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const value: VaultContextType = {
-    vaultId: 'VAULT_0x42',
+    vaultId: connectedWallet ? `VAULT_${connectedWallet.address.substring(0, 6)}` : 'VAULT_DISCONNECTED',
     isProven: true,
-    viewingKey: '0x07f18a2b...stark_viewing_key_k',
+    viewingKey: '0x07f18a2b...stark_viewing_key',
     isBalanceRevealed,
     holdings,
     policy,
@@ -326,6 +338,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     grantAuditorAccess,
     revokeAuditorAccess,
     connectWallet,
+    refreshBalances,
   };
 
   return <VaultContext.Provider value={value}>{children}</VaultContext.Provider>;

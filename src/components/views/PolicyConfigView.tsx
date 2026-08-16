@@ -108,7 +108,7 @@ export const PolicyConfigView: React.FC = () => {
                 </div>
               </div>
               <p className="font-body-md" style={{ color: 'var(--text-dim)', fontSize: '12px', marginTop: '6px' }}>
-                Aggregate rolling 24-hour ceiling across all private UTXO spend notes.
+                Aggregate rolling ceiling across all private UTXO spend notes.
               </p>
             </div>
           </div>
@@ -138,7 +138,7 @@ export const PolicyConfigView: React.FC = () => {
 
             <div>
               <div className="font-label-caps" style={{ color: 'var(--text-dim)', marginBottom: '4px' }}>
-                Multi-Signer Governance Threshold
+                Governance Consensus
               </div>
               <div style={{ fontFamily: 'var(--font-mono)', fontSize: '14px', color: 'var(--bronze)' }}>
                 {policy.multiSignerThreshold.required} of {policy.multiSignerThreshold.total} Approvals Required
@@ -168,36 +168,42 @@ export const PolicyConfigView: React.FC = () => {
         }
         noPadding
       >
-        <table className="chamber-table">
-          <thead>
-            <tr>
-              <th>Entity / Node Label</th>
-              <th>Starknet Shielded Address</th>
-              <th>Date Added</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {policy.approvedRecipients.map((rec) => (
-              <tr key={rec.address}>
-                <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{rec.label}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--bronze)' }}>
-                  {rec.address}
-                </td>
-                <td style={{ color: 'var(--text-dim)' }}>{rec.addedAt}</td>
-                <td>
-                  <button
-                    className="btn-ghost"
-                    style={{ padding: '4px 8px', color: 'var(--error-text)' }}
-                    onClick={() => removeApprovedRecipient(rec.address)}
-                  >
-                    Remove
-                  </button>
-                </td>
+        {policy.approvedRecipients.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>
+            No recipient allowlist constraints set. All valid Starknet addresses are eligible for transfer within the cap.
+          </div>
+        ) : (
+          <table className="chamber-table">
+            <thead>
+              <tr>
+                <th>Entity / Node Label</th>
+                <th>Starknet Shielded Address</th>
+                <th>Date Added</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {policy.approvedRecipients.map((rec) => (
+                <tr key={rec.address}>
+                  <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{rec.label}</td>
+                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '12px', color: 'var(--bronze)' }}>
+                    {rec.address.length > 20 ? `${rec.address.substring(0, 10)}...${rec.address.substring(rec.address.length - 8)}` : rec.address}
+                  </td>
+                  <td style={{ color: 'var(--text-dim)' }}>{rec.addedAt}</td>
+                  <td>
+                    <button
+                      className="btn-ghost"
+                      style={{ padding: '4px 8px', color: 'var(--error-text)' }}
+                      onClick={() => removeApprovedRecipient(rec.address)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </Chamber>
 
       {/* Add Recipient Modal */}

@@ -8,9 +8,9 @@ export const TransferProofView: React.FC = () => {
   const { holdings, policy, executeTransfer, setActiveTab } = useVault();
   const [selectedAsset, setSelectedAsset] = useState<AssetSymbol>('USDC');
   const [recipient, setRecipient] = useState<string>(
-    policy.approvedRecipients[0]?.address || '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
+    policy.approvedRecipients[0]?.address || ''
   );
-  const [amount, setAmount] = useState<string>('25000');
+  const [amount, setAmount] = useState<string>('');
   const [isProving, setIsProving] = useState<boolean>(false);
   const [provingStep, setProvingStep] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -19,10 +19,14 @@ export const TransferProofView: React.FC = () => {
   const activeHolding = holdings.find((h) => h.symbol === selectedAsset);
   const numAmount = parseFloat(amount) || 0;
   const usdValue = numAmount * (activeHolding?.usdRate || 1);
-  const isOverCap = usdValue > policy.maxTransactionCap;
+  const isOverCap = numAmount > 0 && usdValue > policy.maxTransactionCap;
 
   const handleTransfer = async () => {
     setErrorMsg(null);
+    if (!recipient) {
+      setErrorMsg('Please specify a valid Starknet recipient address.');
+      return;
+    }
     if (numAmount <= 0) {
       setErrorMsg('Transfer amount must be greater than zero.');
       return;
@@ -165,24 +169,26 @@ export const TransferProofView: React.FC = () => {
                   <label className="font-label-caps" style={{ color: 'var(--text-muted)' }}>
                     Recipient Shielded Address
                   </label>
-                  <select
-                    style={{
-                      background: 'var(--bg-chamber-lowest)',
-                      border: '1px solid var(--line)',
-                      color: 'var(--text-dim)',
-                      fontSize: '10px',
-                      fontFamily: 'var(--font-sans)',
-                      padding: '2px 6px',
-                    }}
-                    onChange={(e) => setRecipient(e.target.value)}
-                  >
-                    <option value="">Choose Whitelisted...</option>
-                    {policy.approvedRecipients.map((r) => (
-                      <option key={r.address} value={r.address}>
-                        {r.label}
-                      </option>
-                    ))}
-                  </select>
+                  {policy.approvedRecipients.length > 0 && (
+                    <select
+                      style={{
+                        background: 'var(--bg-chamber-lowest)',
+                        border: '1px solid var(--line)',
+                        color: 'var(--text-dim)',
+                        fontSize: '10px',
+                        fontFamily: 'var(--font-sans)',
+                        padding: '2px 6px',
+                      }}
+                      onChange={(e) => setRecipient(e.target.value)}
+                    >
+                      <option value="">Choose Whitelisted...</option>
+                      {policy.approvedRecipients.map((r) => (
+                        <option key={r.address} value={r.address}>
+                          {r.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
                 <div className="input-slot">
                   <input
@@ -190,7 +196,7 @@ export const TransferProofView: React.FC = () => {
                     className="slot-input"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
-                    placeholder="0x..."
+                    placeholder="0x049d36570d4e..."
                     disabled={isProving}
                   />
                 </div>
@@ -222,42 +228,44 @@ export const TransferProofView: React.FC = () => {
               </div>
 
               {/* Policy Feedback Alert */}
-              <div
-                style={{
-                  padding: '12px 16px',
-                  border: isOverCap ? '1px solid var(--error-text)' : '1px solid var(--bronze)',
-                  backgroundColor: isOverCap ? 'rgba(178, 76, 76, 0.1)' : 'rgba(166, 124, 82, 0.08)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
-              >
-                <span
-                  className="material-symbols-outlined"
-                  style={{ color: isOverCap ? 'var(--error-text)' : 'var(--bronze)', fontSize: '20px' }}
+              {numAmount > 0 && (
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    border: isOverCap ? '1px solid var(--error-text)' : '1px solid var(--bronze)',
+                    backgroundColor: isOverCap ? 'rgba(178, 76, 76, 0.1)' : 'rgba(166, 124, 82, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
                 >
-                  {isOverCap ? 'gpp_bad' : 'verified'}
-                </span>
-                <div>
-                  <div
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      letterSpacing: '0.08em',
-                      color: isOverCap ? 'var(--error-text)' : 'var(--bronze)',
-                      textTransform: 'uppercase',
-                    }}
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ color: isOverCap ? 'var(--error-text)' : 'var(--bronze)', fontSize: '20px' }}
                   >
-                    {isOverCap ? 'Policy Constraint Violated' : 'Policy Constraint Satisfied'}
-                  </div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                    {isOverCap
-                      ? `Amount ($${usdValue.toLocaleString()}) exceeds max cap ($${policy.maxTransactionCap.toLocaleString()}). Proof cannot be generated.`
-                      : `Amount ($${usdValue.toLocaleString()}) ≤ Max Cap ($${policy.maxTransactionCap.toLocaleString()}). ZK proof is provable.`}
+                    {isOverCap ? 'gpp_bad' : 'verified'}
+                  </span>
+                  <div>
+                    <div
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        color: isOverCap ? 'var(--error-text)' : 'var(--bronze)',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {isOverCap ? 'Policy Constraint Violated' : 'Policy Constraint Satisfied'}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                      {isOverCap
+                        ? `Amount ($${usdValue.toLocaleString()}) exceeds max cap ($${policy.maxTransactionCap.toLocaleString()}). Proof cannot be generated.`
+                        : `Amount ($${usdValue.toLocaleString()}) ≤ Max Cap ($${policy.maxTransactionCap.toLocaleString()}). ZK proof is provable.`}
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {errorMsg && (
                 <div style={{ color: 'var(--error-text)', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>

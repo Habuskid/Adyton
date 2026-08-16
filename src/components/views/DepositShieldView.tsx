@@ -5,9 +5,9 @@ import { ProvenBadge } from '../common/ProvenBadge';
 import { Chamber } from '../common/Chamber';
 
 export const DepositShieldView: React.FC = () => {
-  const { holdings, depositAsset, setActiveTab } = useVault();
+  const { holdings, depositAsset, setActiveTab, connectedWallet, connectWallet } = useVault();
   const [selectedAsset, setSelectedAsset] = useState<AssetSymbol>('USDC');
-  const [amount, setAmount] = useState<string>('50000');
+  const [amount, setAmount] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1);
   const [txSuccess, setTxSuccess] = useState<{ hash: string } | null>(null);
@@ -85,7 +85,7 @@ export const DepositShieldView: React.FC = () => {
                 <button className="btn-primary" onClick={() => setActiveTab('dashboard')}>
                   View Treasury Balance →
                 </button>
-                <button className="btn-secondary" onClick={() => setTxSuccess(null)}>
+                <button className="btn-secondary" onClick={() => { setTxSuccess(null); setAmount(''); }}>
                   Shield More Assets
                 </button>
               </div>
@@ -144,19 +144,17 @@ export const DepositShieldView: React.FC = () => {
                   <span className="font-data-md" style={{ color: 'var(--text-dim)' }}>
                     Est. Value: ${(numAmount * (activeHolding?.usdRate || 1)).toLocaleString()} USD
                   </span>
-                  <button
-                    className="btn-ghost"
-                    style={{ padding: '0', color: 'var(--bronze)', fontSize: '11px' }}
-                    onClick={() => setAmount(activeHolding?.publicAmount.toString() || '0')}
-                  >
-                    Max ({activeHolding?.publicAmount} {selectedAsset})
-                  </button>
                 </div>
               </div>
 
               {/* Submit Button */}
-              <button className="btn-primary" style={{ width: '100%', padding: '14px' }} onClick={handleDeposit} disabled={isProcessing}>
-                {isProcessing ? 'Screening & Shielding...' : `Shield ${numAmount.toLocaleString()} ${selectedAsset}`}
+              <button
+                className="btn-primary"
+                style={{ width: '100%', padding: '14px' }}
+                onClick={handleDeposit}
+                disabled={isProcessing || numAmount <= 0}
+              >
+                {isProcessing ? 'Screening & Shielding...' : `Shield ${numAmount > 0 ? numAmount.toLocaleString() : '0'} ${selectedAsset}`}
               </button>
             </div>
           )}

@@ -13,6 +13,8 @@ export const DashboardView: React.FC = () => {
     transactions,
     policy,
     setActiveTab,
+    connectedWallet,
+    connectWallet,
   } = useVault();
 
   const totalShieldedUsd = holdings.reduce((sum, h) => sum + h.shieldedAmount * h.usdRate, 0);
@@ -38,7 +40,7 @@ export const DashboardView: React.FC = () => {
             <h1 className="font-headline-lg" style={{ color: 'var(--text-primary)' }}>
               {vaultId}
             </h1>
-            <ProvenBadge label="Confidential Status: Proven" />
+            <ProvenBadge label={connectedWallet ? 'Confidential Status: Proven' : 'Wallet Not Connected'} />
           </div>
           <p className="font-body-md" style={{ color: 'var(--text-muted)' }}>
             Confidential Treasury Vault governed on Starknet. Note-based encrypted UTXO assets in STRK20.
@@ -46,15 +48,23 @@ export const DashboardView: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <button className="btn-secondary" onClick={toggleBalanceReveal}>
-            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-              {isBalanceRevealed ? 'visibility_off' : 'visibility'}
-            </span>
-            {isBalanceRevealed ? 'Mask Balances' : 'Reveal Viewing Key'}
-          </button>
-          <button className="btn-primary" onClick={() => setActiveTab('transfer')}>
-            Initiate Transfer
-          </button>
+          {!connectedWallet ? (
+            <button className="btn-primary" onClick={connectWallet}>
+              Connect Starknet Wallet
+            </button>
+          ) : (
+            <>
+              <button className="btn-secondary" onClick={toggleBalanceReveal}>
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                  {isBalanceRevealed ? 'visibility_off' : 'visibility'}
+                </span>
+                {isBalanceRevealed ? 'Mask Balances' : 'Reveal Viewing Key'}
+              </button>
+              <button className="btn-primary" onClick={() => setActiveTab('transfer')}>
+                Initiate Transfer
+              </button>
+            </>
+          )}
         </div>
       </header>
 
@@ -118,7 +128,7 @@ export const DashboardView: React.FC = () => {
             className="font-data-lg"
             style={{ fontSize: '20px', color: 'var(--text-primary)', fontWeight: 700, margin: '14px 0 10px' }}
           >
-            2 Active Auditors
+            Auditor Escrow
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px' }}>
             <span className="font-data-md" style={{ color: 'var(--text-dim)' }}>
@@ -151,7 +161,6 @@ export const DashboardView: React.FC = () => {
             <tr>
               <th>Asset</th>
               <th>Shielded Balance</th>
-              <th>Public (Unshielded)</th>
               <th>USD Value</th>
               <th>UTXO Notes</th>
               <th>Action</th>
@@ -189,9 +198,6 @@ export const DashboardView: React.FC = () => {
                       {asset.shieldedAmount.toLocaleString()} {asset.symbol}
                     </span>
                   </td>
-                  <td>
-                    {asset.publicAmount.toLocaleString()} {asset.symbol}
-                  </td>
                   <td className={isBalanceRevealed ? 'revealed' : 'obscured-text'}>
                     ${usdVal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </td>
@@ -222,58 +228,64 @@ export const DashboardView: React.FC = () => {
         badge={<ProvenBadge label="ZK Verified" />}
         noPadding
       >
-        <table className="chamber-table">
-          <thead>
-            <tr>
-              <th>Type</th>
-              <th>Asset / Amount</th>
-              <th>Counterparty</th>
-              <th>Timestamp</th>
-              <th>Policy Check</th>
-              <th>Tx Hash</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((tx) => (
-              <tr key={tx.id}>
-                <td>
-                  <span
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      letterSpacing: '0.08em',
-                      padding: '3px 6px',
-                      background: 'var(--bg-chamber-lowest)',
-                      border: '1px solid var(--line)',
-                      color: tx.type === 'DEPOSIT_SHIELD' ? 'var(--bronze)' : 'var(--text-primary)',
-                    }}
-                  >
-                    {tx.type.replace('_', ' ')}
-                  </span>
-                </td>
-                <td className={isBalanceRevealed ? 'revealed' : 'obscured-text'}>
-                  {tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : '—'}
-                </td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
-                  {tx.recipientOrDepositor.length > 20
-                    ? `${tx.recipientOrDepositor.substring(0, 10)}...${tx.recipientOrDepositor.substring(tx.recipientOrDepositor.length - 8)}`
-                    : tx.recipientOrDepositor}
-                </td>
-                <td style={{ color: 'var(--text-dim)' }}>{tx.timestamp}</td>
-                <td>
-                  <span style={{ color: 'var(--bronze)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                    <span className="proven-badge">P</span>
-                    <span style={{ fontSize: '11px' }}>Policy Compliant</span>
-                  </span>
-                </td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>
-                  {tx.txHash.substring(0, 10)}...{tx.txHash.substring(58)}
-                </td>
+        {transactions.length === 0 ? (
+          <div style={{ padding: '32px', textAlign: 'center', color: 'var(--text-dim)' }}>
+            No transactions recorded yet. Shield assets or initiate a transfer to begin.
+          </div>
+        ) : (
+          <table className="chamber-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Asset / Amount</th>
+                <th>Counterparty</th>
+                <th>Timestamp</th>
+                <th>Policy Check</th>
+                <th>Tx Hash</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {transactions.map((tx) => (
+                <tr key={tx.id}>
+                  <td>
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-sans)',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        padding: '3px 6px',
+                        background: 'var(--bg-chamber-lowest)',
+                        border: '1px solid var(--line)',
+                        color: tx.type === 'DEPOSIT_SHIELD' ? 'var(--bronze)' : 'var(--text-primary)',
+                      }}
+                    >
+                      {tx.type.replace('_', ' ')}
+                    </span>
+                  </td>
+                  <td className={isBalanceRevealed ? 'revealed' : 'obscured-text'}>
+                    {tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : '—'}
+                  </td>
+                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {tx.recipientOrDepositor.length > 20
+                      ? `${tx.recipientOrDepositor.substring(0, 10)}...${tx.recipientOrDepositor.substring(tx.recipientOrDepositor.length - 8)}`
+                      : tx.recipientOrDepositor}
+                  </td>
+                  <td style={{ color: 'var(--text-dim)' }}>{tx.timestamp}</td>
+                  <td>
+                    <span style={{ color: 'var(--bronze)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <span className="proven-badge">P</span>
+                      <span style={{ fontSize: '11px' }}>Policy Compliant</span>
+                    </span>
+                  </td>
+                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>
+                    {tx.txHash.substring(0, 10)}...{tx.txHash.substring(58)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </Chamber>
     </div>
   );
