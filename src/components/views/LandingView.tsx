@@ -8,8 +8,13 @@ export const LandingView: React.FC = () => {
   return (
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '48px 24px' }}>
       {/* Hero Section */}
-      <section style={{ textAlign: 'center', padding: '64px 0 80px', borderBottom: '1px solid var(--line)' }}>
-        <div style={{ display: 'inline-flex', marginBottom: '24px' }}>
+      <section style={{ textAlign: 'center', padding: '48px 0 80px', borderBottom: '1px solid var(--line)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '24px' }}>
+          <img
+            src="/logo.png"
+            alt="Adyton Logo"
+            style={{ width: '84px', height: '84px', objectFit: 'contain', marginBottom: '20px' }}
+          />
           <ProvenBadge label="Starknet STRK20 Native Privacy" />
         </div>
 

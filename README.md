@@ -1,4 +1,12 @@
-# Adyton — Confidential Treasury Vault on Starknet (STRK20)
+<p align="center">
+  <img src="logo.png" alt="Adyton Logo" width="120" />
+</p>
+
+<h1 align="center">Adyton</h1>
+
+<p align="center">
+  <strong>Confidential Treasury Vaults with Cryptographic Policy Enforcement on Starknet (STRK20)</strong>
+</p>
 
 A confidential treasury vault on Starknet. Funds stay privately shielded inside the STRK20 privacy pool. Every outgoing transfer must cryptographically prove it obeys the vault's spending policy before it can execute — no exceptions, no manual override.
 

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <!-- Outer Architectural Triangle / Arch -->
+  <path d="M256 36L465 440H380L256 150L132 440H47L256 36Z" fill="#24282C"/>
+  <path d="M47 440C85 440 108 420 132 370L256 80L380 370C404 420 427 440 465 440H380L256 150L132 440H47Z" fill="#1C1F22"/>
+  <!-- Inner Bronze Chamber Pillar / Obelisk -->
+  <path d="M240 280L256 250L272 280V440H240V280Z" fill="#A67C52"/>
+</svg>

@@ -37,7 +37,7 @@ export const TopNavBar: React.FC = () => {
           alignItems: 'center',
         }}
       >
-        {/* Brand */}
+        {/* Brand with Logo */}
         <div
           onClick={() => setActiveTab('landing')}
           style={{
@@ -47,6 +47,11 @@ export const TopNavBar: React.FC = () => {
             cursor: 'pointer',
           }}
         >
+          <img
+            src="/logo.png"
+            alt="Adyton Logo"
+            style={{ width: '28px', height: '28px', objectFit: 'contain' }}
+          />
           <span
             style={{
               fontFamily: 'var(--font-sans)',

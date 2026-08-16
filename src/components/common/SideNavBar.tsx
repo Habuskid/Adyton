@@ -29,24 +29,22 @@ export const SideNavBar: React.FC = () => {
       }}
       className="hidden-mobile"
     >
-      {/* Vault Profile */}
+      {/* Vault Profile with Logo */}
       <div style={{ padding: '24px', borderBottom: '1px solid var(--line)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
           <div
             style={{
-              width: '32px',
-              height: '32px',
+              width: '36px',
+              height: '36px',
               backgroundColor: 'var(--bg-chamber)',
               border: '1px solid var(--line)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--bronze)',
+              padding: '4px',
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-              account_balance
-            </span>
+            <img src="/logo.png" alt="Adyton" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div>
             <div
