@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Adyton - Deposit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ffb4ab",
+                    "surface-container-low": "#1c1b1b",
+                    "primary-container": "#b4885d",
+                    "tertiary-fixed-dim": "#c6c6c6",
+                    "tertiary-fixed": "#e2e2e2",
+                    "outline": "#9c8e83",
+                    "surface-container-lowest": "#0e0e0e",
+                    "inverse-surface": "#e5e2e1",
+                    "inverse-on-surface": "#313030",
+                    "surface-variant": "#353534",
+                    "on-primary": "#472a06",
+                    "surface-container": "#201f1f",
+                    "on-primary-container": "#3f2302",
+                    "on-tertiary-fixed": "#1a1c1c",
+                    "outline-variant": "#50453b",
+                    "on-secondary-fixed": "#1b1c1c",
+                    "on-secondary-container": "#b6b5b4",
+                    "on-secondary-fixed-variant": "#474746",
+                    "surface-bright": "#393939",
+                    "background": "#131313",
+                    "on-error-container": "#ffdad6",
+                    "on-surface": "#e5e2e1",
+                    "primary-fixed": "#ffdcbd",
+                    "on-error": "#690005",
+                    "on-secondary": "#303030",
+                    "on-tertiary": "#2f3131",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "secondary-fixed": "#e4e2e1",
+                    "surface": "#131313",
+                    "surface-container-highest": "#353534",
+                    "on-primary-fixed-variant": "#61401b",
+                    "error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#454747",
+                    "on-surface-variant": "#d4c4b7",
+                    "on-background": "#e5e2e1",
+                    "surface-container-high": "#2a2a2a",
+                    "primary-fixed-dim": "#eebd8e",
+                    "inverse-primary": "#7c5730",
+                    "primary": "#eebd8e",
+                    "surface-tint": "#eebd8e",
+                    "on-tertiary-container": "#282a2a",
+                    "tertiary": "#c6c6c6",
+                    "on-primary-fixed": "#2c1600",
+                    "tertiary-container": "#909191",
+                    "secondary-container": "#474746",
+                    "surface-dim": "#131313",
+                    "secondary": "#c8c6c5"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "margin": "48px",
+                    "unit": "4px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "label-caps": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "data-lg": [
+                            "JetBrains Mono"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "data-md": [
+                            "JetBrains Mono"
+                    ]
+            },
+            "fontSize": {
+                    "label-caps": [
+                            "11px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "letterSpacing": "0",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "data-lg": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.5",
+                                    "letterSpacing": "0",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "data-md": [
+                            "13px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "0",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        /* Base styles from layout guidelines */
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .architectural-border {
+            border-color: #2A2A2A;
+        }
+
+        .proven-glow {
+            box-shadow: 0 0 4px rgba(166, 124, 82, 0.1);
+        }
+
+        /* Custom scrollbar for vault feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.background');
+            border-left: 1px solid #2A2A2A;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2A2A2A;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline-variant');
+        }
+
+        /* Stepper lines */
+        .stepper-line {
+            position: absolute;
+            left: 15px;
+            top: 32px;
+            bottom: -8px;
+            width: 1px;
+            background-color: #2A2A2A;
+            z-index: 0;
+        }
+        .stepper-item:last-child .stepper-line {
+            display: none;
+        }
+        
+        .stepper-node {
+            width: 32px;
+            height: 32px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: theme('colors.background');
+            border: 1px solid #2A2A2A;
+            z-index: 1;
+            position: relative;
+        }
+
+        .stepper-node.active {
+            border-color: theme('colors.primary');
+            color: theme('colors.primary');
+            background-color: rgba(166, 124, 82, 0.05);
+        }
+        
+        .stepper-node.completed {
+            border-color: theme('colors.on-surface-variant');
+            color: theme('colors.on-surface-variant');
+        }
+
+        /* Input slot */
+        .input-slot {
+            border-bottom: 1px solid #2A2A2A;
+            transition: border-color 0.2s;
+        }
+        .input-slot:focus-within {
+            border-color: theme('colors.primary');
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen font-body-md text-body-md antialiased overflow-x-hidden">
+<!-- TopNavBar (Shared Component) -->
+<nav class="bg-background dark:bg-background border-b border-outline-variant dark:border-outline-variant w-full sticky top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin h-16 max-w-container-max mx-auto">
+<!-- Brand -->
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md font-bold tracking-tighter text-on-background dark:text-on-background">ADYTON</span>
+</div>
+<!-- Navigation Links (Desktop) -->
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors duration-200" href="#">Treasury</a>
+<a class="text-primary dark:text-primary font-bold border-b-2 border-primary h-16 flex items-center" href="#">Vaults</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors duration-200" href="#">Governance</a>
+<a class="text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors duration-200" href="#">Audit</a>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center gap-2 px-4 py-2 border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary transition-colors">
+<span class="font-label-caps text-label-caps">Connect Wallet</span>
+</button>
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">verified_user</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+</div>
+</div>
+</div>
+</nav>
+<div class="flex flex-1 w-full max-w-container-max mx-auto">
+<!-- SideNavBar (Shared Component) -->
+<aside class="hidden md:flex flex-col h-[calc(100vh-64px)] w-64 bg-surface-container-lowest dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline-variant sticky top-16 py-gutter space-y-4">
+<!-- Header -->
+<div class="px-6 mb-6">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 bg-surface-container border border-outline-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">account_balance_wallet</span>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant">VAULT_0x42</div>
+<div class="font-label-caps text-[9px] text-primary opacity-80 mt-1">Confidential Status: Proven</div>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 0;">grid_view</span>
+<span class="font-label-caps text-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+<span class="font-label-caps text-label-caps">Assets</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-primary dark:text-primary bg-surface-container-high dark:bg-surface-container-high border-r-2 border-primary transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">shield</span>
+<span class="font-label-caps text-label-caps">Shielded Pool</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 0;">history</span>
+<span class="font-label-caps text-label-caps">History</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 0;">lock_person</span>
+<span class="font-label-caps text-label-caps">Security</span>
+</a>
+</nav>
+<!-- CTA & Footer -->
+<div class="px-6 mt-auto pt-6 border-t architectural-border">
+<button class="w-full bg-primary text-[#121212] font-label-caps text-label-caps py-3 hover:bg-primary-fixed-dim transition-colors mb-6 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">shield</span>
+                    Initiate Proof
+                </button>
+<div class="flex flex-col space-y-3">
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">description</span>
+<span class="font-label-caps text-label-caps">Docs</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help_outline</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 p-6 md:p-margin bg-background relative flex justify-center">
+<div class="w-full max-w-2xl mt-8">
+<!-- Page Header -->
+<div class="mb-12 border-b architectural-border pb-6">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">SHIELD ASSETS</h1>
+<p class="text-on-surface-variant max-w-lg">Transfer public assets into the Adyton shielded pool. Transactions are cryptographically sealed and obscured from public ledger view.</p>
+</div>
+<!-- Stepper Flow -->
+<div class="relative space-y-12">
+<!-- Step 1: Connect -->
+<div class="stepper-item relative flex gap-6">
+<div class="stepper-line"></div>
+<div class="stepper-node completed">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="flex-1 pb-4">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4">STEP 1: PUBLIC IDENTITY</div>
+<div class="border architectural-border bg-[#1A1A1A] p-6">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-gradient-to-br from-[#FF4C4C] to-[#8B0000] flex items-center justify-center border border-[#2A2A2A]">
+<!-- placeholder for wallet icon -->
+</div>
+<div>
+<div class="text-on-surface font-medium">Argent X</div>
+<div class="font-data-md text-data-md text-on-surface-variant">0x03a...9F2e</div>
+</div>
+</div>
+<div class="flex items-center gap-2 text-primary">
+<span class="w-2 h-2 rounded-full bg-primary proven-glow"></span>
+<span class="font-label-caps text-label-caps">CONNECTED</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 2: Select -->
+<div class="stepper-item relative flex gap-6">
+<div class="stepper-line"></div>
+<div class="stepper-node active">
+<span class="font-data-md">2</span>
+</div>
+<div class="flex-1 pb-4">
+<div class="font-label-caps text-label-caps text-primary mb-4">STEP 2: ALLOCATION</div>
+<div class="border architectural-border bg-[#1A1A1A] p-6 space-y-8">
+<!-- Asset Select -->
+<div class="space-y-4">
+<label class="font-label-caps text-label-caps text-on-surface-variant">SELECT ASSET</label>
+<div class="grid grid-cols-2 gap-4">
+<button class="border border-primary bg-[rgba(166,124,82,0.05)] p-4 flex items-center justify-between transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded-full bg-[#111] border border-[#333] flex items-center justify-center">
+<span class="text-[10px] font-bold">ETH</span>
+</div>
+<span class="font-data-md text-data-md text-on-surface">ETH</span>
+</div>
+<span class="material-symbols-outlined text-primary text-sm">check</span>
+</button>
+<button class="border architectural-border bg-transparent p-4 flex items-center justify-between hover:border-outline-variant transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded-full bg-[#111] border border-[#333] flex items-center justify-center text-[#2A86FF]">
+<span class="text-[10px] font-bold">STRK</span>
+</div>
+<span class="font-data-md text-data-md text-on-surface-variant">STRK</span>
+</div>
+</button>
+</div>
+<div class="text-right font-data-md text-data-md text-on-surface-variant mt-2">
+                                        Available: 4.2500 ETH
+                                    </div>
+</div>
+<!-- Amount Input -->
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">DEPOSIT AMOUNT</label>
+<div class="input-slot flex items-center justify-between bg-[#121212] p-4">
+<input class="bg-transparent border-none outline-none font-data-lg text-data-lg text-on-surface w-full p-0 focus:ring-0" placeholder="0.00" type="text" value="2.50"/>
+<div class="flex items-center gap-4">
+<span class="font-data-md text-data-md text-on-surface-variant">ETH</span>
+<button class="font-label-caps text-label-caps text-primary border border-primary px-2 py-1 hover:bg-[rgba(166,124,82,0.1)] transition-colors">MAX</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 3: Seal -->
+<div class="stepper-item relative flex gap-6">
+<div class="stepper-line"></div>
+<div class="stepper-node">
+<span class="font-data-md text-on-surface-variant">3</span>
+</div>
+<div class="flex-1 pb-4">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-4">STEP 3: CRYPTOGRAPHIC SEAL</div>
+<div class="border architectural-border bg-transparent p-6 opacity-50 relative overflow-hidden group">
+<!-- Abstract visualization placeholder -->
+<div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9IiMxMzEzMTMiLz48cmVjdCB3aWR0aD0iMSIgaGVpZ2h0PSIxIiBmaWxsPSIjMmEyYTJhIi8+PC9zdmc+')] opacity-20"></div>
+<div class="relative z-10 flex flex-col items-center justify-center py-8">
+<div class="w-16 h-16 border border-outline-variant flex items-center justify-center mb-6">
+<span class="material-symbols-outlined text-outline-variant text-3xl">lock</span>
+</div>
+<div class="font-data-md text-data-md text-outline-variant text-center max-w-xs mb-8">
+                                        Awaiting input configuration to generate sealed note hash.
+                                    </div>
+<button class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps py-3 px-8 cursor-not-allowed border border-outline-variant w-full max-w-xs flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">enhanced_encryption</span>
+                                        SEAL TO VAULT
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

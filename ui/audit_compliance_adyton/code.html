@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Adyton - Audit &amp; Compliance</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ffb4ab",
+                      "surface-container-low": "#1c1b1b",
+                      "primary-container": "#b4885d",
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "tertiary-fixed": "#e2e2e2",
+                      "outline": "#9c8e83",
+                      "surface-container-lowest": "#0e0e0e",
+                      "inverse-surface": "#e5e2e1",
+                      "inverse-on-surface": "#313030",
+                      "surface-variant": "#353534",
+                      "on-primary": "#472a06",
+                      "surface-container": "#201f1f",
+                      "on-primary-container": "#3f2302",
+                      "on-tertiary-fixed": "#1a1c1c",
+                      "outline-variant": "#50453b",
+                      "on-secondary-fixed": "#1b1c1c",
+                      "on-secondary-container": "#b6b5b4",
+                      "on-secondary-fixed-variant": "#474746",
+                      "surface-bright": "#393939",
+                      "background": "#131313",
+                      "on-error-container": "#ffdad6",
+                      "on-surface": "#e5e2e1",
+                      "primary-fixed": "#ffdcbd",
+                      "on-error": "#690005",
+                      "on-secondary": "#303030",
+                      "on-tertiary": "#2f3131",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "secondary-fixed": "#e4e2e1",
+                      "surface": "#131313",
+                      "surface-container-highest": "#353534",
+                      "on-primary-fixed-variant": "#61401b",
+                      "error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#454747",
+                      "on-surface-variant": "#d4c4b7",
+                      "on-background": "#e5e2e1",
+                      "surface-container-high": "#2a2a2a",
+                      "primary-fixed-dim": "#eebd8e",
+                      "inverse-primary": "#7c5730",
+                      "primary": "#eebd8e",
+                      "surface-tint": "#eebd8e",
+                      "on-tertiary-container": "#282a2a",
+                      "tertiary": "#c6c6c6",
+                      "on-primary-fixed": "#2c1600",
+                      "tertiary-container": "#909191",
+                      "secondary-container": "#474746",
+                      "surface-dim": "#131313",
+                      "secondary": "#c8c6c5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "margin": "48px",
+                      "unit": "4px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-caps": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "data-lg": ["JetBrains Mono"],
+                      "body-md": ["Inter"],
+                      "data-md": ["JetBrains Mono"]
+              },
+              "fontSize": {
+                      "label-caps": ["11px", {"lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                      "data-lg": ["16px", {"lineHeight": "1.4", "letterSpacing": "-0.02em", "fontWeight": "500"}],
+                      "body-md": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                      "data-md": ["13px", {"lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for data tables to maintain architectural feel */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #131313; border-left: 1px solid #2a2a2a; }
+        ::-webkit-scrollbar-thumb { background: #353534; border: 1px solid #2a2a2a; }
+        ::-webkit-scrollbar-thumb:hover { background: #50453b; }
+        
+        .proven-glow { box-shadow: 0 0 4px 0 rgba(166, 124, 82, 0.1); }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden antialiased selection:bg-primary selection:text-on-primary flex h-screen">
+<!-- SideNavBar (Shared Component Blueprint) -->
+<nav class="hidden md:flex flex-col h-screen py-gutter space-y-4 bg-surface-container-lowest border-r border-outline-variant w-64 shrink-0 transition-all duration-300 ease-in-out">
+<div class="px-6 pb-6 border-b border-outline-variant">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">VAULT_0x42</h2>
+<p class="font-data-md text-data-md text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span> Confidential Status: Proven
+            </p>
+</div>
+<ul class="flex-1 space-y-1 px-3">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-all duration-300 ease-in-out uppercase" href="#">
+<span class="material-symbols-outlined text-lg">grid_view</span> Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-all duration-300 ease-in-out uppercase" href="#">
+<span class="material-symbols-outlined text-lg">account_balance_wallet</span> Assets
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-all duration-300 ease-in-out uppercase" href="#">
+<span class="material-symbols-outlined text-lg">shield</span> Shielded Pool
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-all duration-300 ease-in-out uppercase" href="#">
+<span class="material-symbols-outlined text-lg">history</span> History
+                </a>
+</li>
+<!-- Active State -->
+<li>
+<a class="flex items-center gap-3 px-3 py-2 font-label-caps text-label-caps text-primary bg-surface-container-high border-r-2 border-primary transition-all duration-300 ease-in-out uppercase" href="#">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">lock_person</span> Security
+                </a>
+</li>
+</ul>
+<div class="px-6 py-4">
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-2 uppercase hover:opacity-80 transition-opacity">Initiate Proof</button>
+</div>
+<div class="mt-auto px-3 border-t border-outline-variant pt-4">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-all duration-300 ease-in-out uppercase" href="#">
+<span class="material-symbols-outlined text-lg">description</span> Docs
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 font-label-caps text-label-caps text-on-surface-variant hover:bg-surface-container transition-all duration-300 ease-in-out uppercase" href="#">
+<span class="material-symbols-outlined text-lg">help_outline</span> Support
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-background">
+<!-- TopNavBar (Shared Component Blueprint) -->
+<header class="flex justify-between items-center w-full px-margin h-16 max-w-container-max mx-auto bg-background border-b border-outline-variant shrink-0">
+<div class="flex items-center gap-8 h-full">
+<span class="font-headline-md text-headline-md font-bold tracking-tighter text-on-background uppercase">ADYTON</span>
+<nav class="hidden lg:flex items-center h-full">
+<a class="px-4 h-full flex items-center font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200 uppercase" href="#">Treasury</a>
+<a class="px-4 h-full flex items-center font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200 uppercase" href="#">Vaults</a>
+<a class="px-4 h-full flex items-center font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors duration-200 uppercase" href="#">Governance</a>
+<!-- Active State -->
+<a class="px-4 h-full flex items-center font-label-caps text-label-caps text-primary font-bold border-b-2 border-primary hover:text-primary transition-colors duration-200 uppercase" href="#">Audit</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="hover:text-primary transition-colors duration-200 hover:opacity-80 active:scale-95">
+<span class="material-symbols-outlined">verified_user</span>
+</button>
+<button class="hover:text-primary transition-colors duration-200 hover:opacity-80 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+<button class="border border-outline-variant px-4 py-2 font-label-caps text-label-caps text-on-background hover:border-primary hover:text-primary transition-colors uppercase">
+                    Connect Wallet
+                </button>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto p-margin max-w-container-max mx-auto w-full flex flex-col gap-gutter">
+<div class="mb-4">
+<h1 class="font-headline-lg text-headline-lg text-on-surface uppercase tracking-tight">Compliance &amp; Auditing</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 max-w-2xl">Manage cryptographic viewing keys and review unmasked transactional data exposed to authorized third-party auditors.</p>
+</div>
+<!-- Chamber: Viewing Key Management -->
+<section class="border border-outline-variant bg-surface flex flex-col">
+<!-- Chamber Header -->
+<div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h2 class="font-label-caps text-label-caps text-on-surface uppercase">Viewing Key Management</h2>
+<div class="font-data-md text-data-md text-primary flex items-center gap-2 border border-primary px-2 py-1 proven-glow">
+<span class="font-bold">P</span> <span class="uppercase tracking-widest text-[10px]">Proven Registration</span>
+</div>
+</div>
+<!-- Chamber Body (Split Columns) -->
+<div class="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-outline-variant">
+<!-- Left Column: Active Auditors -->
+<div class="flex-1 p-6 flex flex-col">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-6 uppercase">Registered Auditor Addresses</h3>
+<div class="space-y-4 flex-1">
+<!-- Auditor 1 -->
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 border border-outline-variant bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant">assured_workload</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface uppercase">Ernst &amp; Young Node A</span>
+<span class="font-data-md text-data-md text-on-surface-variant mt-0.5">0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7</span>
+</div>
+</div>
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-error transition-colors uppercase px-3 py-1 border border-transparent hover:border-error">Revoke</button>
+</div>
+<hr class="border-t border-outline-variant opacity-50"/>
+<!-- Auditor 2 -->
+<div class="flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 border border-outline-variant bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant">policy</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface uppercase">Internal Compliance Dept</span>
+<span class="font-data-md text-data-md text-on-surface-variant mt-0.5">0x02a24c562bfcb3b0f5cd3e14df1a41db89b251b14ea17dc4dbed4b3d73b069d5</span>
+</div>
+</div>
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-error transition-colors uppercase px-3 py-1 border border-transparent hover:border-error">Revoke</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Grant Access -->
+<div class="flex-1 p-6 bg-surface-container-lowest flex flex-col justify-between">
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-4 uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">key</span> Grant New Access
+                            </h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-8">
+                                Registering a new viewing key cryptographically unmasks all historic and future transaction payloads for this specific vault to the designated Starknet address.
+                            </p>
+<div class="space-y-6">
+<div class="flex flex-col relative group">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase">Auditor Public Key / Address</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:ring-0 focus:border-primary text-on-surface font-data-md text-data-md py-2 px-0 transition-colors placeholder:text-outline-variant" placeholder="0x..." type="text"/>
+</div>
+<div class="flex flex-col relative group">
+<label class="font-label-caps text-label-caps text-on-surface-variant mb-2 uppercase">Reference Label (Optional)</label>
+<input class="w-full bg-transparent border-0 border-b border-outline-variant focus:ring-0 focus:border-primary text-on-surface font-body-md text-body-md py-2 px-0 transition-colors placeholder:text-outline-variant" placeholder="e.g., Q3 Audit Firm" type="text"/>
+</div>
+</div>
+</div>
+<button class="mt-8 w-full bg-primary text-on-primary font-label-caps text-label-caps py-3 uppercase hover:bg-primary-fixed transition-colors border border-primary flex items-center justify-center gap-2" onclick="document.getElementById('grantModal').classList.remove('hidden')">
+                            Initialize Authorization
+                        </button>
+</div>
+</div>
+</section>
+<!-- Chamber: Audit Log Preview -->
+<section class="border border-outline-variant bg-surface flex flex-col mt-4">
+<!-- Chamber Header -->
+<div class="px-6 py-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<div class="flex items-center gap-4">
+<h2 class="font-label-caps text-label-caps text-on-surface uppercase">Audit Log Preview</h2>
+<span class="font-label-caps text-label-caps text-on-surface-variant border border-outline-variant px-2 py-0.5 bg-surface-container-lowest uppercase">Scoped to Vault_0x42</span>
+</div>
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 uppercase">
+<span class="material-symbols-outlined text-[14px]">download</span> Export CSV
+                    </button>
+</div>
+<!-- Data Table (Architectural) -->
+<div class="w-full overflow-x-auto">
+<table class="w-full text-left border-collapse whitespace-nowrap">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-lowest">
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase font-normal tracking-wider w-48">Timestamp (UTC)</th>
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase font-normal tracking-wider">Sender Address</th>
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase font-normal tracking-wider">Recipient Address</th>
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase font-normal tracking-wider text-right">Amount (Unmasked)</th>
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase font-normal tracking-wider w-40 text-center">Policy Proof</th>
+</tr>
+</thead>
+<tbody class="font-data-md text-data-md text-on-surface divide-y divide-outline-variant/50">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-3 px-6 text-on-surface-variant group-hover:text-on-surface transition-colors">2023-10-27 14:32:01</td>
+<td class="py-3 px-6">0x049d...c741b</td>
+<td class="py-3 px-6">0x02a2...b069d5</td>
+<td class="py-3 px-6 text-right text-primary font-medium">250,000.00 USDC</td>
+<td class="py-3 px-6 text-center">
+<span class="inline-flex items-center gap-1 border border-primary/30 text-primary px-2 py-0.5 bg-primary/5">
+<span class="material-symbols-outlined text-[12px]">verified</span> ZK-Valid
+                                    </span>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-3 px-6 text-on-surface-variant group-hover:text-on-surface transition-colors">2023-10-26 09:15:44</td>
+<td class="py-3 px-6">0x061b...a2e8c</td>
+<td class="py-3 px-6">0x049d...c741b</td>
+<td class="py-3 px-6 text-right text-primary font-medium">12,500.00 STRK</td>
+<td class="py-3 px-6 text-center">
+<span class="inline-flex items-center gap-1 border border-primary/30 text-primary px-2 py-0.5 bg-primary/5">
+<span class="material-symbols-outlined text-[12px]">verified</span> ZK-Valid
+                                    </span>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-3 px-6 text-on-surface-variant group-hover:text-on-surface transition-colors">2023-10-25 18:45:12</td>
+<td class="py-3 px-6">0x049d...c741b</td>
+<td class="py-3 px-6">0x07ab...9f21e</td>
+<td class="py-3 px-6 text-right text-primary font-medium">5,000.00 USDT</td>
+<td class="py-3 px-6 text-center">
+<span class="inline-flex items-center gap-1 border border-primary/30 text-primary px-2 py-0.5 bg-primary/5">
+<span class="material-symbols-outlined text-[12px]">verified</span> ZK-Valid
+                                    </span>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="py-3 px-6 text-on-surface-variant group-hover:text-on-surface transition-colors">2023-10-22 11:10:05</td>
+<td class="py-3 px-6">0x03ef...d1c4a</td>
+<td class="py-3 px-6">0x049d...c741b</td>
+<td class="py-3 px-6 text-right text-primary font-medium">1,000,000.00 USDC</td>
+<td class="py-3 px-6 text-center">
+<span class="inline-flex items-center gap-1 border border-primary/30 text-primary px-2 py-0.5 bg-primary/5">
+<span class="material-symbols-outlined text-[12px]">verified</span> ZK-Valid
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-3 border-t border-outline-variant bg-surface-container-lowest text-center">
+<button class="font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors uppercase">Load More Records</button>
+</div>
+</section>
+</main>
+</div>
+<!-- High Authorization Event Modal (Hidden by default) -->
+<div class="fixed inset-0 bg-background/90 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" id="grantModal">
+<div class="bg-surface border border-outline-variant max-w-lg w-full shadow-2xl flex flex-col">
+<!-- Modal Header -->
+<div class="p-6 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h2 class="font-label-caps text-label-caps text-error flex items-center gap-2 uppercase tracking-widest">
+<span class="material-symbols-outlined text-lg">warning</span> High Authorization Event
+                </h2>
+<button class="text-on-surface-variant hover:text-on-surface" onclick="document.getElementById('grantModal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-8 space-y-6 flex-1">
+<p class="font-body-lg text-body-lg text-on-surface">
+                    You are requesting to cryptographically register a new auditor viewing key for <span class="font-data-lg text-data-lg text-primary border-b border-primary/30 pb-0.5">VAULT_0x42</span>.
+                </p>
+<div class="border border-outline-variant p-5 bg-surface-container-lowest flex gap-4">
+<span class="material-symbols-outlined text-outline mt-0.5">policy</span>
+<div class="font-data-md text-data-md text-on-surface-variant leading-relaxed">
+                        This operation requires multi-signature approval. Once executed, the target address will have permanent, unmasked read-access to all historical and future transactions within this specific chamber until explicitly revoked.
+                    </div>
+</div>
+<div class="pt-4 space-y-2">
+<div class="flex justify-between items-center font-data-md text-data-md border-b border-outline-variant/30 pb-2">
+<span class="text-on-surface-variant">Target Address:</span>
+<span class="text-on-surface">0x09a1...f3b2</span>
+</div>
+<div class="flex justify-between items-center font-data-md text-data-md border-b border-outline-variant/30 pb-2">
+<span class="text-on-surface-variant">Access Scope:</span>
+<span class="text-on-surface">Unmasked History &amp; Real-time</span>
+</div>
+<div class="flex justify-between items-center font-data-md text-data-md pb-2">
+<span class="text-on-surface-variant">Required Signatures:</span>
+<span class="text-primary">2 / 3 threshold</span>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="flex border-t border-outline-variant">
+<button class="flex-1 py-4 bg-surface-container-lowest text-on-surface font-label-caps text-label-caps uppercase hover:bg-surface-container transition-colors border-r border-outline-variant" onclick="document.getElementById('grantModal').classList.add('hidden')">
+                    Cancel
+                </button>
+<button class="flex-1 py-4 bg-primary text-on-primary font-label-caps text-label-caps uppercase hover:bg-primary-fixed transition-colors flex items-center justify-center gap-2" onclick="document.getElementById('grantModal').classList.add('hidden')">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">fingerprint</span> Sign &amp; Propose
+                </button>
+</div>
+</div>
+</div>
+</body></html>

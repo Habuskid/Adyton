@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Adyton - Private by Default</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ffb4ab",
+                      "surface-container-low": "#1c1b1b",
+                      "primary-container": "#b4885d",
+                      "tertiary-fixed-dim": "#c6c6c6",
+                      "tertiary-fixed": "#e2e2e2",
+                      "outline": "#9c8e83",
+                      "surface-container-lowest": "#0e0e0e",
+                      "inverse-surface": "#e5e2e1",
+                      "inverse-on-surface": "#313030",
+                      "surface-variant": "#353534",
+                      "on-primary": "#472a06",
+                      "surface-container": "#201f1f",
+                      "on-primary-container": "#3f2302",
+                      "on-tertiary-fixed": "#1a1c1c",
+                      "outline-variant": "#50453b",
+                      "on-secondary-fixed": "#1b1c1c",
+                      "on-secondary-container": "#b6b5b4",
+                      "on-secondary-fixed-variant": "#474746",
+                      "surface-bright": "#393939",
+                      "background": "#131313",
+                      "on-error-container": "#ffdad6",
+                      "on-surface": "#e5e2e1",
+                      "primary-fixed": "#ffdcbd",
+                      "on-error": "#690005",
+                      "on-secondary": "#303030",
+                      "on-tertiary": "#2f3131",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "secondary-fixed": "#e4e2e1",
+                      "surface": "#131313",
+                      "surface-container-highest": "#353534",
+                      "on-primary-fixed-variant": "#61401b",
+                      "error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#454747",
+                      "on-surface-variant": "#d4c4b7",
+                      "on-background": "#e5e2e1",
+                      "surface-container-high": "#2a2a2a",
+                      "primary-fixed-dim": "#eebd8e",
+                      "inverse-primary": "#7c5730",
+                      "primary": "#eebd8e",
+                      "surface-tint": "#eebd8e",
+                      "on-tertiary-container": "#282a2a",
+                      "tertiary": "#c6c6c6",
+                      "on-primary-fixed": "#2c1600",
+                      "tertiary-container": "#909191",
+                      "secondary-container": "#474746",
+                      "surface-dim": "#131313",
+                      "secondary": "#c8c6c5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "margin": "48px",
+                      "unit": "4px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "data-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "data-md": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "1.3",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "1.2",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.6",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "1.5",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-md": [
+                              "13px",
+                              {
+                                      "lineHeight": "1.4",
+                                      "letterSpacing": "0",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #131313; /* Base architectural layer */
+            color: #e5e2e1;
+        }
+        .proven-glow {
+            box-shadow: 0 0 4px rgba(166, 124, 82, 0.1);
+        }
+        .arch-divider {
+            border-color: #2a2a2a;
+        }
+        /* Hide nav shell on landing page per rules */
+    </style>
+</head>
+<body class="bg-background min-h-screen flex flex-col font-body-lg text-body-lg">
+<!-- Content Canvas -->
+<main class="flex-grow flex flex-col w-full max-w-container-max mx-auto px-margin">
+<!-- Hero Section -->
+<section class="py-32 flex flex-col items-center justify-center text-center border-b arch-divider min-h-[800px]">
+<div class="inline-flex items-center space-x-2 border arch-divider px-3 py-1 mb-8">
+<span class="w-2 h-2 bg-primary rounded-full proven-glow"></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Starknet Privacy Pool</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-6 max-w-3xl leading-tight">
+                Private capital needs private rails.
+            </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-10">
+                Shielded holdings, policy-proven transfers, and audit-ready reporting on demand. Built for the capital that stays off public chains.
+            </p>
+<div class="flex flex-col sm:flex-row items-center gap-4 mb-16">
+<button class="bg-[#A67C52] text-[#131313] font-label-caps text-label-caps uppercase px-8 py-4 tracking-widest hover:bg-primary-fixed transition-colors">
+                Enter the Vault
+            </button>
+<button class="border border-[#2a2a2a] text-on-surface font-label-caps text-label-caps uppercase px-8 py-4 tracking-widest hover:bg-[#1a1a1a] transition-colors">
+                See how it works
+            </button>
+</div>
+<div class="max-w-xl text-left border arch-divider p-6 bg-surface-container-lowest">
+<p class="font-data-md text-data-md text-on-surface-variant leading-relaxed">
+<span class="text-primary mr-2">Market Fact:</span>42% of U.S. equity volume happens in private venues to avoid front-running. On-chain, that protection doesn't exist—until now.
+            </p>
+</div>
+</section>
+<!-- The Problem Section -->
+<section class="py-24 border-b arch-divider text-center">
+<div class="max-w-3xl mx-auto">
+<p class="font-headline-md text-headline-md text-on-background leading-relaxed">
+                On-chain, every treasury move—balance, recipient, amount, timing—is permanently public. Competitors see it. Counterparties see it. That's why institutional capital hasn't followed retail on-chain.
+            </p>
+</div>
+</section>
+<!-- The Mechanism Section -->
+<section class="py-24 border-b arch-divider">
+<div class="mb-16">
+<h2 class="font-headline-md text-headline-md text-on-background">The Mechanism</h2>
+<div class="w-full h-px bg-[#2a2a2a] mt-4"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-0 border arch-divider mb-12">
+<!-- Step 1 -->
+<div class="p-gutter border-b md:border-b-0 md:border-r arch-divider bg-surface-container-lowest hover:bg-[#1a1a1a] transition-colors">
+<span class="font-data-lg text-data-lg text-primary mb-6 block">01</span>
+<h3 class="font-label-caps text-label-caps text-on-background mb-2">Deposit</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Funds enter as shielded, encrypted holdings. Nobody outside sees the balance.</p>
+</div>
+<!-- Step 2 -->
+<div class="p-gutter border-b md:border-b-0 md:border-r arch-divider bg-surface-container-lowest hover:bg-[#1a1a1a] transition-colors">
+<span class="font-data-lg text-data-lg text-primary mb-6 block">02</span>
+<h3 class="font-label-caps text-label-caps text-on-background mb-2">Transfer</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Outgoing transfers carry a cryptographic proof of policy compliance. Amounts and recipients stay hidden; only the proof is checked.</p>
+</div>
+<!-- Step 3 -->
+<div class="p-gutter bg-surface-container-lowest hover:bg-[#1a1a1a] transition-colors">
+<span class="font-data-lg text-data-lg text-primary mb-6 block">03</span>
+<h3 class="font-label-caps text-label-caps text-on-background mb-2">Audit</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">The owner controls a single audit key. Disclosure only happens to authorized parties on your terms.</p>
+</div>
+</div>
+<div class="text-center">
+<p class="font-data-lg text-data-lg text-on-surface-variant">The chain doesn't see your treasury. It only ever sees that your rules were followed.</p>
+</div>
+</section>
+<!-- Hidden / Provable Section -->
+<section class="py-24 border-b arch-divider">
+<div class="mb-16 text-center">
+<p class="font-body-lg text-body-lg text-on-surface-variant">Privacy and accountability aren't a trade-off here. They're the same mechanism.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Left (Hidden) -->
+<div class="border arch-divider bg-[#1a1a1a] p-gutter">
+<h3 class="font-label-caps text-label-caps text-on-background mb-6 border-b arch-divider pb-2">What's Hidden</h3>
+<ul class="space-y-4 font-data-md text-data-md text-on-surface-variant">
+<li class="flex items-center">
+<span class="w-1.5 h-1.5 bg-[#2a2a2a] mr-3"></span>
+<span>Balance</span>
+</li>
+<li class="flex items-center">
+<span class="w-1.5 h-1.5 bg-[#2a2a2a] mr-3"></span>
+<span>Transfer Amounts</span>
+</li>
+<li class="flex items-center">
+<span class="w-1.5 h-1.5 bg-[#2a2a2a] mr-3"></span>
+<span>Recipients</span>
+</li>
+<li class="flex items-center">
+<span class="w-1.5 h-1.5 bg-[#2a2a2a] mr-3"></span>
+<span>Timing</span>
+</li>
+</ul>
+</div>
+<!-- Right (Provable) -->
+<div class="border arch-divider bg-[#1a1a1a] p-gutter relative">
+<div class="absolute top-gutter right-gutter border border-[#A67C52] text-[#A67C52] w-6 h-6 flex items-center justify-center font-data-md text-data-md proven-glow">P</div>
+<h3 class="font-label-caps text-label-caps text-primary mb-6 border-b arch-divider pb-2">What's Provable</h3>
+<ul class="space-y-4 font-data-md text-data-md text-on-surface-variant">
+<li class="flex items-center">
+<span class="w-1.5 h-1.5 bg-primary mr-3 proven-glow"></span>
+<span>Policy Compliance</span>
+</li>
+<li class="flex items-center">
+<span class="w-1.5 h-1.5 bg-primary mr-3 proven-glow"></span>
+<span>Solvency</span>
+</li>
+<li class="flex items-center">
+<span class="w-1.5 h-1.5 bg-primary mr-3 proven-glow"></span>
+<span>Audit Trail</span>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- Why Now & Final CTA Section -->
+<section class="py-32 flex flex-col items-center justify-center text-center mb-12">
+<div class="max-w-2xl mb-16">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-6">Why Now</h2>
+<p class="font-body-lg text-body-lg text-on-background leading-relaxed">
+                Built on STRK20, Starknet's native privacy framework. Shielded balances and zero-knowledge proofs live on mainnet. Real infrastructure for real transactions.
+            </p>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-background mb-10">Private capital needs private rails.</h2>
+<button class="bg-[#A67C52] text-[#131313] font-label-caps text-label-caps uppercase px-8 py-4 tracking-widest hover:bg-primary-fixed transition-colors">
+            Enter the Vault
+        </button>
+</section>
+</main>
+</body></html>

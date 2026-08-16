@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production / Builds
+dist/
+build/
+target/
+
+# System / IDE
+.DS_Store
+*.pem
+.env
+.env.local
+.vscode/
+.idea/
+
+# Scarb / Cairo artifacts
+contracts/target/

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Policy Configuration - ADYTON</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ffb4ab",
+                        "surface-container-low": "#1c1b1b",
+                        "primary-container": "#b4885d",
+                        "tertiary-fixed-dim": "#c6c6c6",
+                        "tertiary-fixed": "#e2e2e2",
+                        "outline": "#9c8e83",
+                        "surface-container-lowest": "#0e0e0e",
+                        "inverse-surface": "#e5e2e1",
+                        "inverse-on-surface": "#313030",
+                        "surface-variant": "#353534",
+                        "on-primary": "#472a06",
+                        "surface-container": "#201f1f",
+                        "on-primary-container": "#3f2302",
+                        "on-tertiary-fixed": "#1a1c1c",
+                        "outline-variant": "#50453b",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "on-secondary-container": "#b6b5b4",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-bright": "#393939",
+                        "background": "#131313",
+                        "on-error-container": "#ffdad6",
+                        "on-surface": "#e5e2e1",
+                        "primary-fixed": "#ffdcbd",
+                        "on-error": "#690005",
+                        "on-secondary": "#303030",
+                        "on-tertiary": "#2f3131",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "secondary-fixed": "#e4e2e1",
+                        "surface": "#131313",
+                        "surface-container-highest": "#353534",
+                        "on-primary-fixed-variant": "#61401b",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#454747",
+                        "on-surface-variant": "#d4c4b7",
+                        "on-background": "#e5e2e1",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-fixed-dim": "#eebd8e",
+                        "inverse-primary": "#7c5730",
+                        "primary": "#eebd8e",
+                        "surface-tint": "#eebd8e",
+                        "on-tertiary-container": "#282a2a",
+                        "tertiary": "#c6c6c6",
+                        "on-primary-fixed": "#2c1600",
+                        "tertiary-container": "#909191",
+                        "secondary-container": "#474746",
+                        "surface-dim": "#131313",
+                        "secondary": "#c8c6c5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin": "48px",
+                        "unit": "4px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "data-lg": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "data-md": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["11px", { "lineHeight": "1.2", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "data-lg": ["16px", { "lineHeight": "1.4", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "body-md": ["14px", { "lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400" }],
+                        "data-md": ["13px", { "lineHeight": "1.4", "letterSpacing": "0", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #353534; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #50453b; }
+        
+        /* Proven State Motif - Outer Glow for Bronze */
+        .glow-bronze {
+            box-shadow: 0 0 4px rgba(166, 124, 82, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md overflow-x-hidden custom-scrollbar selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-background dark:bg-background border-b border-outline-variant dark:border-outline-variant full-width top-0 z-50">
+<div class="flex justify-between items-center w-full px-margin h-16 max-w-container-max mx-auto">
+<div class="flex items-center space-x-gutter">
+<a class="font-headline-md text-headline-md font-bold tracking-tighter text-on-background dark:text-on-background" href="#">ADYTON</a>
+<div class="hidden md:flex items-center space-x-gutter ml-margin">
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors duration-200 uppercase tracking-widest" href="#">Treasury</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors duration-200 uppercase tracking-widest" href="#">Vaults</a>
+<a class="font-label-caps text-label-caps text-primary dark:text-primary font-bold border-b-2 border-primary uppercase tracking-widest py-5" href="#">Governance</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary transition-colors duration-200 uppercase tracking-widest" href="#">Audit</a>
+</div>
+</div>
+<div class="flex items-center space-x-gutter">
+<div class="flex items-center space-x-4 text-on-surface-variant">
+<button class="hover:text-primary transition-colors duration-200 active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">verified_user</span>
+</button>
+<button class="hover:text-primary transition-colors duration-200 active:opacity-80 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-6 py-2 uppercase tracking-widest hover:bg-primary-fixed transition-colors duration-200 active:opacity-80 active:scale-95">
+                    Connect Wallet
+                </button>
+</div>
+</div>
+</nav>
+<div class="flex flex-1 max-w-container-max mx-auto w-full">
+<!-- SideNavBar -->
+<aside class="hidden md:flex bg-surface-container-lowest dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline-variant flex-col h-[calc(100vh-64px)] w-64 py-gutter space-y-4 sticky top-16">
+<div class="px-6 pb-6 border-b border-outline-variant">
+<div class="flex items-center space-x-3 mb-2">
+<div class="w-8 h-8 bg-surface-container-high flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">account_balance</span>
+</div>
+<div>
+<h2 class="font-data-md text-data-md font-bold text-on-background">VAULT_0x42</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary inline-block glow-bronze"></span>
+                            Confidential Status: Proven
+                        </p>
+</div>
+</div>
+<button class="w-full mt-4 bg-transparent border border-outline-variant text-on-background font-label-caps text-label-caps py-2 hover:border-primary hover:text-primary transition-colors duration-200 uppercase tracking-widest">
+                    Initiate Proof
+                </button>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">grid_view</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">account_balance_wallet</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Assets</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">shield</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Shielded Pool</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container dark:hover:bg-surface-container transition-all duration-300 ease-in-out group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">history</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">History</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-3 text-primary dark:text-primary bg-surface-container-high dark:bg-surface-container-high border-r-2 border-primary transition-all duration-300 ease-in-out" href="#">
+<span class="material-symbols-outlined">lock_person</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Security</span>
+</a>
+</nav>
+<div class="px-4 mt-auto pt-6 border-t border-outline-variant">
+<a class="flex items-center space-x-3 px-4 py-2 text-on-surface-variant hover:text-on-background transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">description</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Docs</span>
+</a>
+<a class="flex items-center space-x-3 px-4 py-2 text-on-surface-variant hover:text-on-background transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">help_outline</span>
+<span class="font-label-caps text-label-caps uppercase tracking-widest">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 p-margin bg-background relative overflow-y-auto">
+<header class="mb-gutter flex justify-between items-end border-b border-outline-variant pb-6">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-2 tracking-tight">Policy Configuration</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Establish enterprise-grade operational parameters for vault outflows and administrative actions. Requires multi-signature validation for finalization.</p>
+</div>
+<div class="flex items-center space-x-2 text-primary font-data-md text-data-md bg-surface-container-low border border-primary px-3 py-1 glow-bronze">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">shield_locked</span>
+<span>SECURE CONTEXT</span>
+</div>
+</header>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+<!-- Left Column: Form Editor -->
+<div class="xl:col-span-8 space-y-gutter">
+<!-- Transaction Limits Chamber -->
+<section class="border border-outline-variant bg-surface-container-lowest">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h3 class="font-label-caps text-label-caps text-on-background uppercase tracking-widest">Transaction Thresholds</h3>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">tune</span>
+</div>
+<div class="p-6 space-y-8">
+<!-- Input Slot: Max Transaction Cap -->
+<div class="relative group">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-2 transition-colors group-focus-within:text-primary">Max Transaction Cap (USDC)</label>
+<div class="flex items-end border-b border-outline-variant pb-2 group-focus-within:border-primary transition-colors">
+<span class="font-data-lg text-data-lg text-on-surface-variant mr-2 mb-1">$</span>
+<input class="w-full bg-transparent font-data-lg text-data-lg text-on-background border-none p-0 focus:ring-0 outline-none" placeholder="0.00" type="text" value="500,000.00"/>
+</div>
+<p class="mt-2 font-body-md text-[12px] text-on-surface-variant">Maximum nominal value permitted in a single outbound transaction.</p>
+</div>
+<!-- Input Slot: Daily Outflow Limit -->
+<div class="relative group">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-2 transition-colors group-focus-within:text-primary">Daily Outflow Limit (USDC)</label>
+<div class="flex items-end border-b border-outline-variant pb-2 group-focus-within:border-primary transition-colors">
+<span class="font-data-lg text-data-lg text-on-surface-variant mr-2 mb-1">$</span>
+<input class="w-full bg-transparent font-data-lg text-data-lg text-on-background border-none p-0 focus:ring-0 outline-none" placeholder="0.00" type="text" value="2,000,000.00"/>
+</div>
+<div class="flex justify-between items-center mt-2">
+<p class="font-body-md text-[12px] text-on-surface-variant">Rolling 24-hour aggregate limit across all assets.</p>
+<span class="font-data-md text-[11px] text-error flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span> High risk threshold</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Network Whitelist Chamber -->
+<section class="border border-outline-variant bg-surface-container-lowest">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-low flex justify-between items-center">
+<h3 class="font-label-caps text-label-caps text-on-background uppercase tracking-widest">Approved Recipient Whitelist</h3>
+<button class="text-primary hover:text-primary-fixed font-label-caps text-label-caps uppercase tracking-widest flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span> Add Address
+                            </button>
+</div>
+<div class="p-0">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-dim">
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Entity / Label</th>
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Address</th>
+<th class="py-3 px-6 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest text-right">Actions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-6 font-body-md text-body-md text-on-background">Binance Corporate Treasury</td>
+<td class="py-4 px-6 font-data-md text-data-md text-on-surface-variant">0x742d...44e</td>
+<td class="py-4 px-6 text-right">
+<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-sm">delete</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-high transition-colors">
+<td class="py-4 px-6 font-body-md text-body-md text-on-background">Internal Operations Multi-sig</td>
+<td class="py-4 px-6 font-data-md text-data-md text-on-surface-variant">0x992b...11c</td>
+<td class="py-4 px-6 text-right">
+<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-sm">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Right Column: Governance Context & Actions -->
+<div class="xl:col-span-4 space-y-gutter">
+<!-- Multi-sig Chamber -->
+<section class="border border-outline-variant bg-surface-container-lowest">
+<div class="px-6 py-4 border-b border-outline-variant bg-surface-container-low">
+<h3 class="font-label-caps text-label-caps text-on-background uppercase tracking-widest flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">group</span>
+                                Multi-Signer Threshold
+                            </h3>
+</div>
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div class="text-center w-1/3">
+<span class="block font-headline-md text-headline-md text-primary">3</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Required</span>
+</div>
+<div class="text-on-surface-variant w-1/3 text-center">
+<span class="material-symbols-outlined">sync_alt</span>
+</div>
+<div class="text-center w-1/3">
+<span class="block font-headline-md text-headline-md text-on-background">5</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Signers</span>
+</div>
+</div>
+<div class="space-y-4 pt-4 border-t border-outline-variant">
+<div class="relative group">
+<label class="block font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest mb-2">Adjust Threshold</label>
+<div class="flex gap-2">
+<select class="flex-1 bg-transparent border-b border-outline-variant pb-2 font-data-md text-data-md text-on-background focus:border-primary focus:ring-0 outline-none appearance-none">
+<option value="1">1</option>
+<option value="2">2</option>
+<option selected="" value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+<span class="text-on-surface-variant self-end pb-2">of 5</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Summary & Action Chamber -->
+<section class="border border-outline-variant bg-surface-container-lowest p-6 flex flex-col justify-between min-h-[240px]">
+<div>
+<h3 class="font-label-caps text-label-caps text-on-background uppercase tracking-widest mb-4">Policy Draft Summary</h3>
+<ul class="space-y-3 font-body-md text-[13px] text-on-surface-variant list-disc pl-4">
+<li>Max transaction updated to <span class="font-data-md text-on-background">500,000 USDC</span></li>
+<li>Daily limit updated to <span class="font-data-md text-on-background">2,000,000 USDC</span></li>
+<li>No changes to whitelist or signer threshold</li>
+</ul>
+</div>
+<div class="mt-8 pt-6 border-t border-outline-variant">
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-4 uppercase tracking-widest hover:bg-primary-fixed transition-colors duration-200 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-sm">gavel</span>
+                                Propose Rule Change
+                            </button>
+<p class="text-center font-body-md text-[11px] text-on-surface-variant mt-3">Action requires 3/5 multi-sig validation</p>
+</div>
+</section>
+</div>
+</div>
+</main>
+</div>
+</body></html>

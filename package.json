@@ -1,0 +1,24 @@
+{
+  "name": "adyton",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Confidential Treasury Vault on Starknet (STRK20)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "starknet": "^10.4.0",
+    "@starknet-io/types-js": "^0.10.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  }
+}
