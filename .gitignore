@@ -18,3 +18,11 @@ target/
 
 # Scarb / Cairo artifacts
 contracts/target/
+
+# Offline Local PC Documentation (Not tracked on GitHub)
+ARCHITECTURE.md
+PRIVACY.md
+ROADMAP.md
+starknet_docs.md
+starknet-docs.md
+starknet docs.md
