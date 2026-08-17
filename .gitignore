@@ -31,3 +31,12 @@ starknet docs.md
 push_to_github.bat
 push_to_github.ps1
 server.ps1
+scarb.bat
+contracts/scarb.bat
+starkli.bat
+contracts/starkli.bat
+scripts/deploy_from_env.ps1
+contracts/deploy_from_env.ps1
+deploy_from_env.ps1
+derive_private_key.ps1
+contracts/derive_private_key.ps1
