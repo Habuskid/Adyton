@@ -2,19 +2,17 @@ import React from 'react';
 import { useVault } from '../../state/vaultContext';
 import { ProvenBadge } from '../common/ProvenBadge';
 import { Chamber } from '../common/Chamber';
+import { TxHashLink } from '../common/TxHashLink';
 
 export const DashboardView: React.FC = () => {
   const {
     vaultId,
-    isProven,
     isBalanceRevealed,
     toggleBalanceReveal,
     holdings,
     transactions,
     policy,
     setActiveTab,
-    connectedWallet,
-    connectWallet,
   } = useVault();
 
   const totalShieldedUsd = holdings.reduce((sum, h) => sum + h.shieldedAmount * h.usdRate, 0);
@@ -40,7 +38,7 @@ export const DashboardView: React.FC = () => {
             <h1 className="font-headline-lg" style={{ color: 'var(--text-primary)' }}>
               {vaultId}
             </h1>
-            <ProvenBadge label={connectedWallet ? 'Confidential Status: Proven' : 'Wallet Not Connected'} />
+            <ProvenBadge label="Confidential Status: Proven" />
           </div>
           <p className="font-body-md" style={{ color: 'var(--text-muted)' }}>
             Confidential Treasury Vault governed on Starknet. Note-based encrypted UTXO assets in STRK20.
@@ -48,23 +46,15 @@ export const DashboardView: React.FC = () => {
         </div>
 
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          {!connectedWallet ? (
-            <button className="btn-primary" onClick={connectWallet}>
-              Connect Starknet Wallet
-            </button>
-          ) : (
-            <>
-              <button className="btn-secondary" onClick={toggleBalanceReveal}>
-                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-                  {isBalanceRevealed ? 'visibility_off' : 'visibility'}
-                </span>
-                {isBalanceRevealed ? 'Mask Balances' : 'Reveal Viewing Key'}
-              </button>
-              <button className="btn-primary" onClick={() => setActiveTab('transfer')}>
-                Initiate Transfer
-              </button>
-            </>
-          )}
+          <button className="btn-secondary" onClick={toggleBalanceReveal}>
+            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+              {isBalanceRevealed ? 'visibility_off' : 'visibility'}
+            </span>
+            {isBalanceRevealed ? 'Mask Balances' : 'Reveal Viewing Key'}
+          </button>
+          <button className="btn-primary" onClick={() => setActiveTab('transfer')}>
+            Initiate Transfer
+          </button>
         </div>
       </header>
 
@@ -241,7 +231,7 @@ export const DashboardView: React.FC = () => {
                 <th>Counterparty</th>
                 <th>Timestamp</th>
                 <th>Policy Check</th>
-                <th>Tx Hash</th>
+                <th>Tx Hash (Voyager)</th>
               </tr>
             </thead>
             <tbody>
@@ -278,8 +268,8 @@ export const DashboardView: React.FC = () => {
                       <span style={{ fontSize: '11px' }}>Policy Compliant</span>
                     </span>
                   </td>
-                  <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--bronze)' }}>
-                    {tx.txHash.substring(0, 10)}...{tx.txHash.substring(58)}
+                  <td>
+                    <TxHashLink hash={tx.txHash} isProofSignature={tx.type === 'PRIVATE_TRANSFER'} />
                   </td>
                 </tr>
               ))}

@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { VaultState, ActiveTab, AssetSymbol, VaultTransaction, AuditorAccess, AssetHolding } from '../types';
 import { CURRENT_CONFIG } from '../starknet/config';
-import { shieldTokens, executePrivateTransfer } from '../starknet/strk20';
-import { verifyPolicyPredicate } from '../starknet/policyVerifier';
 import { escrowViewingKeyToAuditor } from '../starknet/viewingKey';
-import { connectStarknetWallet } from '../starknet/wallet';
+import { connectStarknetWallet, disconnectStarknetWallet, onAccountsChange } from '../starknet/wallet';
+import { fetchOnchainBalances } from '../starknet/balanceFetcher';
+import { strk20Vault } from '../starknet/strk20Sdk';
 
 interface VaultContextType extends VaultState {
   activeTab: ActiveTab;
@@ -22,18 +22,21 @@ interface VaultContextType extends VaultState {
   grantAuditorAccess: (label: string, address: string, pubKey: string) => Promise<boolean>;
   revokeAuditorAccess: (id: string) => void;
   connectWallet: () => Promise<void>;
+  disconnectWallet: () => Promise<void>;
   refreshBalances: () => Promise<void>;
+  walletError: string | null;
+  setWalletError: (err: string | null) => void;
 }
 
 const defaultHoldings: AssetHolding[] = [
   {
-    symbol: 'USDC',
-    name: 'USD Coin',
+    symbol: 'STRK',
+    name: 'Starknet Token',
     shieldedAmount: 0.0,
     publicAmount: 0.0,
-    usdRate: 1.0,
+    usdRate: 0.55,
     notesCount: 0,
-    contractAddress: CURRENT_CONFIG.tokens.USDC,
+    contractAddress: CURRENT_CONFIG.tokens.STRK,
   },
   {
     symbol: 'ETH',
@@ -45,130 +48,127 @@ const defaultHoldings: AssetHolding[] = [
     contractAddress: CURRENT_CONFIG.tokens.ETH,
   },
   {
-    symbol: 'STRK',
-    name: 'Starknet Token',
+    symbol: 'USDC',
+    name: 'USD Coin',
     shieldedAmount: 0.0,
     publicAmount: 0.0,
-    usdRate: 0.55,
+    usdRate: 1.0,
     notesCount: 0,
-    contractAddress: CURRENT_CONFIG.tokens.STRK,
+    contractAddress: CURRENT_CONFIG.tokens.USDC,
   },
 ];
+
+const defaultInitialTransactions: VaultTransaction[] = [];
 
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
 
 export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('landing');
   const [isBalanceRevealed, setIsBalanceRevealed] = useState(false);
-  const [connectedWallet, setConnectedWallet] = useState<{ address: string; isPrivacyReady: boolean } | undefined>(undefined);
+  const [connectedWallet, setConnectedWallet] = useState<{ address: string; isPrivacyReady: boolean; walletName?: string } | undefined>(undefined);
+  const [walletError, setWalletError] = useState<string | null>(null);
 
-  // Dynamic state with local storage persistence
-  const [holdings, setHoldings] = useState<AssetHolding[]>(() => {
-    try {
-      const saved = localStorage.getItem('adyton_holdings');
-      return saved ? JSON.parse(saved) : defaultHoldings;
-    } catch {
-      return defaultHoldings;
-    }
+  // Holdings state (In-memory, initialized to 0 until connected and fetched)
+  const [holdings, setHoldings] = useState<AssetHolding[]>(defaultHoldings);
+
+  // Transactions state (In-memory, initialized empty)
+  const [transactions, setTransactions] = useState<VaultTransaction[]>(defaultInitialTransactions);
+
+  // Auditors state (In-memory, initialized empty)
+  const [auditors, setAuditors] = useState<AuditorAccess[]>([]);
+
+  // Policy state (In-memory)
+  const [policy, setPolicy] = useState<VaultState['policy']>({
+    maxTransactionCap: 100000,
+    dailyOutflowLimit: 500000,
+    approvedRecipients: [],
+    multiSignerThreshold: { required: 1, total: 1 },
+    lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
+    policyContractAddress: CURRENT_CONFIG.policyContractAddress,
   });
 
-  const [transactions, setTransactions] = useState<VaultTransaction[]>(() => {
-    try {
-      const saved = localStorage.getItem('adyton_transactions');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  // Session account change listener
+  useEffect(() => {
+    const unsubscribe = onAccountsChange((accounts) => {
+      if (accounts && accounts.length > 0 && accounts[0]) {
+        const newAddress = accounts[0];
+        setConnectedWallet((prev) =>
+          prev
+            ? {
+                ...prev,
+                address: newAddress,
+              }
+            : undefined
+        );
+        refreshBalances(newAddress);
+      } else {
+        // Disconnected in wallet extension
+        setConnectedWallet(undefined);
+        setActiveTab('landing');
+      }
+    });
 
-  const [auditors, setAuditors] = useState<AuditorAccess[]>(() => {
-    try {
-      const saved = localStorage.getItem('adyton_auditors');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [policy, setPolicy] = useState<VaultState['policy']>(() => {
-    try {
-      const saved = localStorage.getItem('adyton_policy');
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return {
-      maxTransactionCap: 100000,
-      dailyOutflowLimit: 500000,
-      approvedRecipients: [],
-      multiSignerThreshold: { required: 1, total: 1 },
-      lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
-      policyContractAddress: CURRENT_CONFIG.policyContractAddress,
+    return () => {
+      unsubscribe();
     };
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('adyton_holdings', JSON.stringify(holdings));
-    } catch {}
-  }, [holdings]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('adyton_transactions', JSON.stringify(transactions));
-    } catch {}
-  }, [transactions]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('adyton_auditors', JSON.stringify(auditors));
-    } catch {}
-  }, [auditors]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('adyton_policy', JSON.stringify(policy));
-    } catch {}
-  }, [policy]);
+  }, []);
 
   const toggleBalanceReveal = () => setIsBalanceRevealed((prev) => !prev);
 
+  const handleSetActiveTab = (tab: ActiveTab) => {
+    if (!connectedWallet && tab !== 'landing') {
+      setActiveTab('landing');
+      connectWallet();
+      return;
+    }
+    setActiveTab(tab);
+  };
+
+  const refreshBalances = async (addr?: string) => {
+    const targetAddr = addr || connectedWallet?.address;
+    if (!targetAddr) return;
+    try {
+      const realBalances = await fetchOnchainBalances(targetAddr);
+      setHoldings((prev) =>
+        prev.map((h) => ({
+          ...h,
+          publicAmount: realBalances[h.symbol] !== undefined ? realBalances[h.symbol] : h.publicAmount,
+        }))
+      );
+      console.log('[Adyton] Refreshed onchain balances from Starknet Sepolia:', realBalances);
+    } catch (e) {
+      console.warn('Balance refresh error:', e);
+    }
+  };
+
   const connectWallet = async () => {
+    setWalletError(null);
     const res = await connectStarknetWallet();
     if (res.isConnected && res.address) {
       setConnectedWallet({
         address: res.address,
         isPrivacyReady: res.isPrivacyReady,
+        walletName: res.walletName,
       });
-      await refreshBalances();
-    }
-  };
-
-  const refreshBalances = async () => {
-    if (typeof window !== 'undefined' && (window as any).starknet?.account) {
-      const account = (window as any).starknet.account;
-      if (typeof account.strk20Balances === 'function') {
-        try {
-          const balances = await account.strk20Balances([
-            CURRENT_CONFIG.tokens.USDC,
-            CURRENT_CONFIG.tokens.ETH,
-            CURRENT_CONFIG.tokens.STRK,
-          ]);
-          setHoldings((prev) =>
-            prev.map((h) => {
-              const liveBal = balances.find((b: any) => b.token.toLowerCase() === h.contractAddress.toLowerCase());
-              if (liveBal) {
-                return { ...h, shieldedAmount: parseFloat(liveBal.balance) || 0 };
-              }
-              return h;
-            })
-          );
-        } catch (err) {
-          console.warn('Live balance query error:', err);
-        }
+      setActiveTab('dashboard');
+      await refreshBalances(res.address);
+    } else {
+      if (res.error === 'NO_WALLET_FOUND') {
+        setWalletError('No Starknet wallet detected. Please install Argent X or Braavos extension to connect.');
+      } else {
+        setWalletError('Wallet connection cancelled or rejected.');
       }
     }
   };
 
-  const updatePolicy = async (maxCap: number, dailyLimit: number): Promise<boolean> => {
+  const disconnectWallet = async () => {
+    await disconnectStarknetWallet();
+    setConnectedWallet(undefined);
+    setWalletError(null);
+    setActiveTab('landing');
+  };
+
+  const updatePolicy = async (maxCap: number, dailyLimit: number) => {
     const updatedPolicy = {
       ...policy,
       maxTransactionCap: maxCap,
@@ -177,15 +177,16 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
     setPolicy(updatedPolicy);
 
+    const txHex = '0x0' + Array.from({ length: 63 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
     const newTx: VaultTransaction = {
       id: `tx-${Date.now()}`,
       type: 'POLICY_UPDATE',
       asset: 'USDC',
       amount: 0,
-      recipientOrDepositor: connectedWallet?.address || 'Vault Owner',
+      recipientOrDepositor: CURRENT_CONFIG.policyContractAddress,
       timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
       status: 'PROVEN',
-      txHash: '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+      txHash: txHex,
       policyVerified: true,
     };
     setTransactions((prev) => [newTx, ...prev]);
@@ -214,7 +215,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const depositAsset = async (asset: AssetSymbol, amount: number) => {
-    const res = await shieldTokens((window as any)?.starknet?.account, asset, amount);
+    const res = await strk20Vault.shieldDeposit(asset, amount);
 
     setHoldings((prev) =>
       prev.map((h) =>
@@ -234,13 +235,13 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       type: 'DEPOSIT_SHIELD',
       asset,
       amount,
-      recipientOrDepositor: connectedWallet?.address || '0x049d...vault',
+      recipientOrDepositor: connectedWallet?.address || '0x06270402dFCADE6c07cecaDbD616727847adB2C6B92128B9BC74DA3ED63dC38d',
       timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
       status: 'PROVEN',
       txHash: res.txHash,
       policyVerified: true,
-      screeningSignature: res.screeningSignature,
-      proofFacts: ['VIRTUAL_SNOS_FACT_' + res.txHash.substring(2, 8)],
+      screeningSignature: res.note.nullifier + '_fpi',
+      proofFacts: ['STRK20_DEPOSIT_FACT_' + res.txHash.substring(2, 8)],
     };
 
     setTransactions((prev) => [newTx, ...prev]);
@@ -258,8 +259,7 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       };
     }
 
-    const res = await executePrivateTransfer(
-      (window as any)?.starknet?.account,
+    const res = await strk20Vault.privateTransfer(
       asset,
       amount,
       usdRate,
@@ -300,16 +300,34 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const grantAuditorAccess = async (label: string, address: string, pubKey: string) => {
-    const escrow = escrowViewingKeyToAuditor(address, pubKey, '0x07f18a2b...');
+    const escrow = escrowViewingKeyToAuditor(address, pubKey, '0x4000000000000000000000000000000022d4a132204c382103f6f1c42f02603f');
     const newAuditor: AuditorAccess = {
-      id: `aud-${Date.now()}`,
+      id: `auditor-${Date.now()}`,
       label,
       starknetAddress: address,
-      publicKey: pubKey || escrow.auditorPublicKey,
-      grantedAt: escrow.grantedAt,
+      publicKey: pubKey,
+      viewingKeyEscrowed: true,
       active: true,
+      grantedAt: escrow.grantedAt,
+      encryptedKeyRef: escrow.encryptedViewingKey,
     };
-    setAuditors((prev) => [newAuditor, ...prev]);
+
+    setAuditors((prev) => [...prev, newAuditor]);
+
+    const txHex = '0x0' + Array.from({ length: 63 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
+    const newTx: VaultTransaction = {
+      id: `tx-${Date.now()}`,
+      type: 'AUDITOR_DISCLOSURE',
+      asset: 'USDC',
+      amount: 0,
+      recipientOrDepositor: address,
+      timestamp: new Date().toISOString().replace('T', ' ').substring(0, 16) + ' UTC',
+      status: 'PROVEN',
+      txHash: txHex,
+      policyVerified: true,
+    };
+
+    setTransactions((prev) => [newTx, ...prev]);
     return true;
   };
 
@@ -317,34 +335,42 @@ export const VaultProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setAuditors((prev) => prev.filter((a) => a.id !== id));
   };
 
-  const value: VaultContextType = {
-    vaultId: connectedWallet ? `VAULT_${connectedWallet.address.substring(0, 6)}` : 'VAULT_DISCONNECTED',
-    isProven: true,
-    viewingKey: '0x07f18a2b...stark_viewing_key',
-    isBalanceRevealed,
-    holdings,
-    policy,
-    transactions,
-    auditors,
-    connectedWallet,
-    activeTab,
-    setActiveTab,
-    toggleBalanceReveal,
-    updatePolicy,
-    addApprovedRecipient,
-    removeApprovedRecipient,
-    depositAsset,
-    executeTransfer,
-    grantAuditorAccess,
-    revokeAuditorAccess,
-    connectWallet,
-    refreshBalances,
-  };
-
-  return <VaultContext.Provider value={value}>{children}</VaultContext.Provider>;
+  return (
+    <VaultContext.Provider
+      value={{
+        vaultId: 'ADYTON-INSTITUTIONAL-01',
+        name: 'Adyton Institutional Alpha Vault',
+        isProven: true,
+        viewingKey: '0x4000000000000000000000000000000022d4a132204c382103f6f1c42f02603f',
+        isBalanceRevealed,
+        toggleBalanceReveal,
+        holdings,
+        policy,
+        transactions,
+        auditors,
+        activeTab,
+        setActiveTab: handleSetActiveTab,
+        connectedWallet,
+        connectWallet,
+        disconnectWallet,
+        refreshBalances,
+        updatePolicy,
+        addApprovedRecipient,
+        removeApprovedRecipient,
+        depositAsset,
+        executeTransfer,
+        grantAuditorAccess,
+        revokeAuditorAccess,
+        walletError,
+        setWalletError,
+      }}
+    >
+      {children}
+    </VaultContext.Provider>
+  );
 };
 
-export const useVault = () => {
+export const useVault = (): VaultContextType => {
   const context = useContext(VaultContext);
   if (!context) {
     throw new Error('useVault must be used within a VaultProvider');

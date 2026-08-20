@@ -3,29 +3,46 @@ import { useVault } from '../../state/vaultContext';
 import { AssetSymbol } from '../../types';
 import { ProvenBadge } from '../common/ProvenBadge';
 import { Chamber } from '../common/Chamber';
+import { TxHashLink } from '../common/TxHashLink';
 
 export const DepositShieldView: React.FC = () => {
-  const { holdings, depositAsset, setActiveTab, connectedWallet, connectWallet } = useVault();
-  const [selectedAsset, setSelectedAsset] = useState<AssetSymbol>('USDC');
+  const { holdings, depositAsset, setActiveTab } = useVault();
+  const [selectedAsset, setSelectedAsset] = useState<AssetSymbol>('STRK');
   const [amount, setAmount] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [step, setStep] = useState<number>(1);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [txSuccess, setTxSuccess] = useState<{ hash: string } | null>(null);
 
   const activeHolding = holdings.find((h) => h.symbol === selectedAsset);
   const numAmount = parseFloat(amount) || 0;
 
   const handleDeposit = async () => {
-    if (numAmount <= 0) return;
-    setIsProcessing(true);
-    setStep(2); // Step 2: FPI Screening Signature
+    setErrorMsg(null);
+    if (numAmount <= 0) {
+      setErrorMsg('Please enter a deposit amount greater than 0.');
+      return;
+    }
+    if (activeHolding && numAmount > activeHolding.publicAmount) {
+      setErrorMsg(
+        `Insufficient ${selectedAsset} in wallet. Available: ${activeHolding.publicAmount.toFixed(4)} ${selectedAsset}.`
+      );
+      return;
+    }
 
-    setTimeout(async () => {
-      setStep(3); // Step 3: Minting Shielded Note in STRK20 Pool
+    setIsProcessing(true);
+    setStep(2);
+
+    try {
+      setStep(3);
       const res = await depositAsset(selectedAsset, numAmount);
       setIsProcessing(false);
       setTxSuccess({ hash: res.txHash });
-    }, 1200);
+    } catch (err: any) {
+      setIsProcessing(false);
+      setStep(1);
+      setErrorMsg(err?.message || 'Transaction was rejected in your wallet.');
+    }
   };
 
   return (
@@ -69,17 +86,19 @@ export const DepositShieldView: React.FC = () => {
               </p>
               <div
                 style={{
-                  padding: '12px',
+                  padding: '14px',
                   backgroundColor: 'var(--bg-chamber-lowest)',
                   border: '1px solid var(--line)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '12px',
-                  color: 'var(--bronze)',
                   marginBottom: '24px',
-                  wordBreak: 'break-all',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                 }}
               >
-                Tx: {txSuccess.hash}
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-dim)' }}>
+                  TRANSACTION HASH:
+                </span>
+                <TxHashLink hash={txSuccess.hash} />
               </div>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                 <button className="btn-primary" onClick={() => setActiveTab('dashboard')}>
@@ -146,6 +165,26 @@ export const DepositShieldView: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              {errorMsg && (
+                <div
+                  style={{
+                    padding: '10px 14px',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#f87171',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
+                    error
+                  </span>
+                  <span>{errorMsg}</span>
+                </div>
+              )}
 
               {/* Submit Button */}
               <button

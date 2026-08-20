@@ -43,7 +43,7 @@ export interface ShieldedNote {
 
 export interface VaultTransaction {
   id: string;
-  type: 'DEPOSIT_SHIELD' | 'PRIVATE_TRANSFER' | 'WITHDRAW_UNSHIELD' | 'POLICY_UPDATE';
+  type: 'DEPOSIT_SHIELD' | 'PRIVATE_TRANSFER' | 'WITHDRAW_UNSHIELD' | 'POLICY_UPDATE' | 'AUDITOR_DISCLOSURE';
   asset: AssetSymbol;
   amount: number;
   recipientOrDepositor: string;
@@ -62,12 +62,15 @@ export interface AuditorAccess {
   starknetAddress: string;
   grantedAt: string;
   active: boolean;
+  viewingKeyEscrowed?: boolean;
+  encryptedKeyRef?: string;
 }
 
 export type ActiveTab = 'landing' | 'dashboard' | 'deposit' | 'policy' | 'transfer' | 'audit';
 
 export interface VaultState {
   vaultId: string;
+  name?: string;
   isProven: boolean;
   viewingKey: string;
   isBalanceRevealed: boolean;
@@ -78,5 +81,6 @@ export interface VaultState {
   connectedWallet?: {
     address: string;
     isPrivacyReady: boolean;
+    walletName?: string;
   };
 }

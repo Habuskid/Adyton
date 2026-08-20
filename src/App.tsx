@@ -11,28 +11,36 @@ import { AuditComplianceView } from './components/views/AuditComplianceView';
 import './styles/design-system.css';
 
 const MainLayout: React.FC = () => {
-  const { activeTab } = useVault();
+  const { activeTab, connectedWallet } = useVault();
 
+  // If wallet is not connected OR the user is on the landing page,
+  // render the clean full-width Landing Page without any sidebar.
+  if (!connectedWallet || activeTab === 'landing') {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg)' }}>
+        <TopNavBar />
+        <main style={{ flex: 1, width: '100%' }}>
+          <LandingView />
+        </main>
+      </div>
+    );
+  }
+
+  // Once authenticated/connected, render the full vault workspace with the sidebar
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg)' }}>
       <TopNavBar />
 
-      {activeTab === 'landing' ? (
-        <main style={{ flex: 1 }}>
-          <LandingView />
+      <div style={{ display: 'flex', flex: 1 }}>
+        <SideNavBar />
+        <main style={{ flex: 1, display: 'flex', justifyContent: 'center', minWidth: 0, overflowY: 'auto' }}>
+          {activeTab === 'dashboard' && <DashboardView />}
+          {activeTab === 'deposit' && <DepositShieldView />}
+          {activeTab === 'policy' && <PolicyConfigView />}
+          {activeTab === 'transfer' && <TransferProofView />}
+          {activeTab === 'audit' && <AuditComplianceView />}
         </main>
-      ) : (
-        <div style={{ display: 'flex', flex: 1 }}>
-          <SideNavBar />
-          <main style={{ flex: 1, display: 'flex', justifyContent: 'center', minWidth: 0, overflowY: 'auto' }}>
-            {activeTab === 'dashboard' && <DashboardView />}
-            {activeTab === 'deposit' && <DepositShieldView />}
-            {activeTab === 'policy' && <PolicyConfigView />}
-            {activeTab === 'transfer' && <TransferProofView />}
-            {activeTab === 'audit' && <AuditComplianceView />}
-          </main>
-        </div>
-      )}
+      </div>
     </div>
   );
 };

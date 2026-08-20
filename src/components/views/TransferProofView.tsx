@@ -3,10 +3,11 @@ import { useVault } from '../../state/vaultContext';
 import { AssetSymbol } from '../../types';
 import { ProvenBadge } from '../common/ProvenBadge';
 import { Chamber } from '../common/Chamber';
+import { TxHashLink } from '../common/TxHashLink';
 
 export const TransferProofView: React.FC = () => {
   const { holdings, policy, executeTransfer, setActiveTab } = useVault();
-  const [selectedAsset, setSelectedAsset] = useState<AssetSymbol>('USDC');
+  const [selectedAsset, setSelectedAsset] = useState<AssetSymbol>('STRK');
   const [recipient, setRecipient] = useState<string>(
     policy.approvedRecipients[0]?.address || ''
   );
@@ -104,15 +105,17 @@ export const TransferProofView: React.FC = () => {
               border: '1px solid var(--line)',
               fontFamily: 'var(--font-mono)',
               fontSize: '12px',
-              color: 'var(--bronze)',
+              color: 'var(--text-primary)',
               marginBottom: '24px',
               textAlign: 'left',
-              wordBreak: 'break-all',
             }}
           >
-            <div><strong>Transaction Hash:</strong> {txSuccess.hash}</div>
-            <div style={{ marginTop: '8px', color: 'var(--text-muted)' }}>
-              <strong>Proof Facts:</strong> VIRTUAL_SNOS_FACT_0x8f19, POLICY_PREDICATE_CAP_VALID
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>SNIP-12 ZK PROOF SIGNATURE:</span>
+              <TxHashLink hash={txSuccess.hash} isProofSignature={true} />
+            </div>
+            <div style={{ marginTop: '8px', color: 'var(--text-muted)', fontSize: '11px' }}>
+              <strong>ZK Proof Facts:</strong> SNIP12_NOTE_AUTH, POLICY_PREDICATE_CAP_VALID, NULLIFIER_CONSUMED
             </div>
           </div>
 

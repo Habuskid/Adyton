@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useVault } from '../../state/vaultContext';
 import { ProvenBadge } from '../common/ProvenBadge';
 import { Chamber } from '../common/Chamber';
+import { TxHashLink } from '../common/TxHashLink';
 
 export const AuditComplianceView: React.FC = () => {
-  const { auditors, grantAuditorAccess, revokeAuditorAccess, transactions, holdings } = useVault();
+  const { auditors, grantAuditorAccess, revokeAuditorAccess, transactions } = useVault();
   const [newLabel, setNewLabel] = useState<string>('');
   const [newAddress, setNewAddress] = useState<string>('');
   const [newPubKey, setNewPubKey] = useState<string>('');
@@ -138,6 +139,7 @@ export const AuditComplianceView: React.FC = () => {
                 <th>Counterparty Address</th>
                 <th>Policy Range Check</th>
                 <th>FPI Compliance</th>
+                <th>Tx Hash (Voyager)</th>
               </tr>
             </thead>
             <tbody>
@@ -164,7 +166,9 @@ export const AuditComplianceView: React.FC = () => {
                     {tx.amount > 0 ? `${tx.amount.toLocaleString()} ${tx.asset}` : 'Policy Reconfiguration'}
                   </td>
                   <td style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
-                    {tx.recipientOrDepositor}
+                    {tx.recipientOrDepositor.length > 20
+                      ? `${tx.recipientOrDepositor.substring(0, 8)}...${tx.recipientOrDepositor.substring(tx.recipientOrDepositor.length - 6)}`
+                      : tx.recipientOrDepositor}
                   </td>
                   <td>
                     <span style={{ color: 'var(--bronze)', fontSize: '12px' }}>✓ Range-Checked</span>
@@ -173,6 +177,9 @@ export const AuditComplianceView: React.FC = () => {
                     <span style={{ color: 'var(--text-dim)', fontSize: '11px' }}>
                       {tx.screeningSignature ? 'FPI SCREENED (0x992b...)' : 'Internal ZK'}
                     </span>
+                  </td>
+                  <td>
+                    <TxHashLink hash={tx.txHash} isProofSignature={tx.type === 'PRIVATE_TRANSFER'} />
                   </td>
                 </tr>
               ))}

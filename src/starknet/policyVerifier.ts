@@ -1,4 +1,4 @@
-import { SpendingPolicy, AssetSymbol } from '../types';
+import { SpendingPolicy } from '../types';
 
 export interface PolicyVerificationResult {
   valid: boolean;

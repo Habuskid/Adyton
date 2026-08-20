@@ -7,36 +7,29 @@ node_modules/
 dist/
 build/
 target/
+contracts/target/
 
-# System / IDE
+# System / IDE & Sensitive files
 .DS_Store
 *.pem
-.env
-.env.local
+*.key
+.env*
 .vscode/
 .idea/
 
-# Scarb / Cairo artifacts
-contracts/target/
+# Ignore all markdown files EXCEPT README.md
+*.md
+!README.md
+**/*.md
+!**/README.md
 
-# Offline Local PC Documentation (Not tracked on GitHub)
-ARCHITECTURE.md
-PRIVACY.md
-ROADMAP.md
-starknet_docs.md
-starknet-docs.md
-starknet docs.md
-
-# Local helper scripts & server
-push_to_github.bat
-push_to_github.ps1
-server.ps1
-scarb.bat
-contracts/scarb.bat
-starkli.bat
-contracts/starkli.bat
-scripts/deploy_from_env.ps1
-contracts/deploy_from_env.ps1
-deploy_from_env.ps1
-derive_private_key.ps1
-contracts/derive_private_key.ps1
+# Ignore local scratch / deployment helper scripts
+scripts/*.mjs
+scripts/*.bat
+scripts/pool_abi.json
+scripts/deploy_sepolia.*
+scripts/execute_mainnet_flow.*
+scripts/deploy_from_env.*
+*.bat
+*.ps1
+!scripts/verify_protocol.ps1

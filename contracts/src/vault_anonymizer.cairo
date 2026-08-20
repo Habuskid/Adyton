@@ -8,6 +8,16 @@ pub struct OpenNoteDeposit {
 }
 
 #[starknet::interface]
+pub trait IERC20<TContractState> {
+    fn balance_of(self: @TContractState, account: ContractAddress) -> u256;
+    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
+    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
+    fn transfer_from(
+        ref self: TContractState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+    ) -> bool;
+}
+
+#[starknet::interface]
 pub trait IVaultAnonymizer<TContractState> {
     /// Entry point invoked by STRK20 privacy pool via `INVOKE_SELECTOR`.
     /// Enforces the vault spending policy onchain before crediting the open note deposit.
@@ -33,10 +43,9 @@ pub mod errors {
 #[starknet::contract]
 pub mod VaultAnonymizer {
     use core::num::traits::Zero;
-    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address, get_contract_address};
-    use super::{IVaultAnonymizer, OpenNoteDeposit, errors};
+    use super::{IVaultAnonymizer, IERC20Dispatcher, IERC20DispatcherTrait, OpenNoteDeposit, errors};
     use crate::policy::{IPolicyVaultDispatcher, IPolicyVaultDispatcherTrait};
 
     #[storage]
@@ -65,38 +74,36 @@ pub mod VaultAnonymizer {
             note_id: felt252,
             recipient: ContractAddress,
         ) -> Span<OpenNoteDeposit> {
-            assert(in_token.is_non_zero(), errors::ZERO_IN_TOKEN);
-            assert(in_amount.is_non_zero(), errors::ZERO_AMOUNT);
-            assert(note_id.is_non_zero(), errors::ZERO_NOTE_ID);
-
-            let self_addr = get_contract_address();
             let caller = get_caller_address();
-
-            // 0. Enforce caller is the verified privacy pool
-            let expected_pool = self.privacy_pool_address.read();
-            if expected_pool.is_non_zero() {
-                assert(caller == expected_pool, errors::CALLER_NOT_POOL);
+            let pool = self.privacy_pool_address.read();
+            if pool.is_non_zero() {
+                assert(caller == pool, errors::CALLER_NOT_POOL);
             }
 
-            // 1. Verify transfer adheres to the onchain policy vault
+            assert(in_token.is_non_zero(), errors::ZERO_IN_TOKEN);
+            assert(in_amount > 0, errors::ZERO_AMOUNT);
+            assert(note_id.is_non_zero(), errors::ZERO_NOTE_ID);
+
+            // 1. Verify policy onchain
             let policy_addr = self.policy_vault_address.read();
             if policy_addr.is_non_zero() {
                 let policy_dispatcher = IPolicyVaultDispatcher { contract_address: policy_addr };
                 let is_valid = policy_dispatcher
-                    .verify_transfer_policy(amount: in_amount, :recipient, token: in_token);
+                    .verify_transfer_policy(amount: in_amount, recipient: recipient, token: in_token);
                 assert(is_valid, errors::POLICY_REJECTED);
             }
 
-            // 2. Measure actual token balance
+            // 2. Approve pool spending
             let token_erc20 = IERC20Dispatcher { contract_address: in_token };
-            let current_balance = token_erc20.balance_of(account: self_addr);
-            assert(current_balance >= in_amount.into(), errors::INSUFFICIENT_FUNDS);
-
-            // 3. Approve the privacy pool (the caller) to pull the settlement tokens
             token_erc20.approve(spender: caller, amount: in_amount.into());
 
-            // 4. Return OpenNoteDeposit instruction for the STRK20 pool to apply
-            [OpenNoteDeposit { note_id, token: in_token, amount: in_amount }].span()
+            // 3. Return open note deposit
+            let mut deposits = array![];
+            deposits
+                .append(
+                    OpenNoteDeposit { note_id: note_id, token: out_token, amount: in_amount },
+                );
+            deposits.span()
         }
     }
 }

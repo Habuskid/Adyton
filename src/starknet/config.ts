@@ -19,12 +19,12 @@ export interface NetworkConfig {
 export const STARKNET_NETWORKS: Record<'sepolia' | 'mainnet', NetworkConfig> = {
   sepolia: {
     chainId: 'SN_SEPOLIA',
-    rpcUrl: 'https://free-rpc.nethermind.io/sepolia-juno/v0_7',
+    rpcUrl: 'https://api.cartridge.gg/x/starknet/sepolia',
     poolAddress: '0x0254a6b2997ef52e9f830ce1f543f6b29768295e8d17e2267d672c552cfe0d91',
     policyContractAddress: '0x01a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8',
     anonymizerContractAddress: '0x03d8a9f2b1e7c4a0d9b8e1f2c3a4b5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2',
     tokens: {
-      USDC: '0x053b40a647cedfca6ca84f542a0fe3673603190d52737e3336804206018b2599',
+      USDC: '0x0512feAc6339Ff7889822cb5aA2a86C848e9D392bB0E3E237C008674feeD8343',
       ETH: '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
       STRK: '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d',
     },

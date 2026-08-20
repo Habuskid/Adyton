@@ -3,7 +3,14 @@ import { useVault } from '../../state/vaultContext';
 import { ProvenBadge } from '../common/ProvenBadge';
 
 export const LandingView: React.FC = () => {
-  const { setActiveTab } = useVault();
+  const { setActiveTab, connectedWallet, connectWallet } = useVault();
+
+  const handleLaunch = async () => {
+    if (!connectedWallet) {
+      await connectWallet();
+    }
+    setActiveTab('dashboard');
+  };
 
   return (
     <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '48px 24px' }}>
@@ -49,7 +56,7 @@ export const LandingView: React.FC = () => {
         </p>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <button className="btn-primary" style={{ padding: '14px 28px', fontSize: '12px' }} onClick={() => setActiveTab('dashboard')}>
+          <button className="btn-primary" style={{ padding: '14px 28px', fontSize: '12px' }} onClick={handleLaunch}>
             Launch Vault Terminal →
           </button>
           <button className="btn-secondary" style={{ padding: '14px 28px', fontSize: '12px' }} onClick={() => setActiveTab('policy')}>

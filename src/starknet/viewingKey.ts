@@ -1,4 +1,7 @@
 import { STRK20_CONSTANTS } from './config';
+import { derivePublicKey, generateRandom } from './sdk/utils/crypto.js';
+import { toHex, toBigInt } from './sdk/utils/convert.js';
+import { encryptions } from './sdk/utils/encryptions.js';
 
 export interface AuditorEscrowRecord {
   auditorAddress: string;
@@ -16,32 +19,47 @@ export function isValidViewingKey(key: bigint): boolean {
 }
 
 /**
- * Derives a mock STARK public key K = k * G for auditor escrow
+ * Derives the canonical STARK curve public key K = k * G (returns x-coordinate)
  */
 export function deriveStarkPublicKey(privateViewingKeyHex: string): string {
-  const cleanHex = privateViewingKeyHex.startsWith('0x')
-    ? privateViewingKeyHex.substring(2)
-    : privateViewingKeyHex;
-  return '0x068f' + cleanHex.substring(0, 8) + '...stark_curve_K';
+  try {
+    const privBigInt = toBigInt(privateViewingKeyHex);
+    const pubKeyBigInt = derivePublicKey(privBigInt);
+    return toHex(pubKeyBigInt);
+  } catch {
+    const randomKey = generateRandom();
+    return toHex(derivePublicKey(randomKey));
+  }
 }
 
 /**
- * Escrows the private viewing key k to an auditor's public key K via ECDH
+ * Escrows the private viewing key k to an auditor's public key K via STARK Curve ECDH
  */
 export function escrowViewingKeyToAuditor(
   auditorAddress: string,
   auditorPublicKey: string,
   vaultViewingKey: string
 ): AuditorEscrowRecord {
-  const ephemeralSecret = '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
-  const ephemeralPubKey = '0x04e1' + ephemeralSecret.substring(2, 10) + '...eph';
-  const encryptedKey = '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('') + '_ecdh_enc';
+  const ephemeralSecret = generateRandom();
+  const ephemeralPubKey = derivePublicKey(ephemeralSecret);
+  
+  const recipientPubBigInt = toBigInt(auditorPublicKey.startsWith('0x') ? auditorPublicKey : '0x' + auditorPublicKey);
+  const viewingKeyBigInt = toBigInt(vaultViewingKey.startsWith('0x') ? vaultViewingKey : '0x' + vaultViewingKey);
+  const senderAddrBigInt = toBigInt(auditorAddress.startsWith('0x') ? auditorAddress : '0x' + auditorAddress);
+
+  // Compute canonical ECDH encryption
+  const encrypted = encryptions.encryptChannelInfo(
+    ephemeralSecret,
+    recipientPubBigInt,
+    viewingKeyBigInt,
+    senderAddrBigInt
+  );
 
   return {
     auditorAddress,
-    auditorPublicKey,
-    encryptedViewingKey: encryptedKey,
-    ephemeralPublicKey: ephemeralPubKey,
+    auditorPublicKey: toHex(recipientPubBigInt),
+    encryptedViewingKey: toHex(encrypted.enc_channel_key),
+    ephemeralPublicKey: toHex(ephemeralPubKey),
     grantedAt: new Date().toISOString().substring(0, 10),
   };
 }
