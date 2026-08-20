@@ -29,42 +29,45 @@ Built directly on [STRK20](https://strk20.starknet.io), Starknet's native privac
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Client Layer (Adyton Terminal)"]
-        UI["React 18 + Vite UI"]
-        SDK["STRK20 SDK Engine"]
-        MEM["Pure In-Memory UTXO Vault"]
-        WAL["Session Wallet Auth (Argent X / Braavos)"]
-        UI <--> MEM
-        UI <--> SDK
-        WAL <--> UI
-    end
-
-    subgraph Crypto ["Canonical Cryptographic Modules"]
-        HASH["Hashes: compute_channel_key / compute_note_id / compute_nullifier"]
-        ECDH["STARK Curve ECDH Encryption (Field Arithmetic Mod P)"]
-        SNIP12["SNIP-12 Structured Note Spend Authorization"]
-        SDK <--> HASH
-        SDK <--> ECDH
-        SDK <--> SNIP12
-    end
-
-    subgraph Starknet ["Starknet Layer (Sepolia / Mainnet)"]
-        POOL["STRK20 Privacy Pool (0x0254a... / 0x04033...)"]
-        ANON["Adyton Vault Anonymizer (IVaultAnonymizer)"]
-        POLICY["Onchain Policy Vault (Cap & Allowlist)"]
-        AUDITOR["Auditor Key Registry (K = k * G)"]
+    subgraph Client["Client Application Layer"]
+        UI["React 18 + Vite Interface"]
+        MEM["In-Memory UTXO Vault State"]
+        SDK["STRK20 Privacy Engine"]
+        WAL["Wallet Auth (Argent X / Braavos)"]
         
-        POOL -- "1. privacy_invoke" --> ANON
-        ANON -- "2. verify_transfer_policy" --> POLICY
-        ANON -- "3. Return OpenNoteDeposit[]" --> POOL
-        ECDH -. "Escrow Viewing Key" .-> AUDITOR
+        UI --> MEM
+        UI --> SDK
+        WAL --> UI
     end
 
-    subgraph Prover ["ZK Proving & Settlement"]
-        PROVE["Starknet Proving Service"]
-        SNOS["Starknet OS Proof Facts Verification"]
-        SDK --> PROVE
-        PROVE --> SNOS
+    subgraph Crypto["Cryptographic & Proof Layer"]
+        HASH["Cairo Hashes: Note ID / Nullifier / Channel Key"]
+        ECDH["STARK Curve ECDH Encryption"]
+        SNIP12["SNIP-12 Note Spend Signer"]
+        
+        SDK --> HASH
+        SDK --> ECDH
+        SDK --> SNIP12
+    end
+
+    subgraph Starknet["Starknet Onchain Layer"]
+        POOL["STRK20 Privacy Pool (0x0254a...)"]
+        ANON["Adyton Vault Anonymizer"]
+        POLICY["Onchain Spending Policy Vault"]
+        AUDITOR["Auditor Key Registry"]
+        
+        POOL -->|privacy_invoke| ANON
+        ANON -->|verify_transfer_policy| POLICY
+        ANON -->|OpenNoteDeposit| POOL
+        ECDH -.->|Escrow Key| AUDITOR
+    end
+
+    subgraph Settlement["ZK Proving & Settlement"]
+        PROVER["Starknet Proving Service"]
+        SNOS["Starknet OS Fact Verification"]
+        
+        SDK --> PROVER
+        PROVER --> SNOS
         SNOS --> POOL
     end
 ```
