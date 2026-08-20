@@ -8,30 +8,87 @@
   <strong>Confidential Treasury Vaults with Cryptographic Policy Enforcement on Starknet (STRK20)</strong>
 </p>
 
-A confidential treasury vault on Starknet. Funds stay privately shielded inside the STRK20 privacy pool. Every outgoing transfer must cryptographically satisfy the vault's onchain spending policy before it can execute — no exceptions, no manual override.
+<p align="center">
+  <img src="https://img.shields.io/badge/Starknet-Sepolia_%26_Mainnet-orange?style=flat-square&logo=starknet" alt="Starknet" />
+  <img src="https://img.shields.io/badge/STRK20-Privacy_Pool_Native-blue?style=flat-square" alt="STRK20" />
+  <img src="https://img.shields.io/badge/Cairo-2.x-red?style=flat-square&logo=cairo" alt="Cairo" />
+  <img src="https://img.shields.io/badge/TypeScript-5.x-blue?style=flat-square&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react" alt="React" />
+  <img src="https://img.shields.io/badge/Vite-5.x-purple?style=flat-square&logo=vite" alt="Vite" />
+  <img src="https://img.shields.io/badge/Cryptography-STARK_Curve_ECDH-brightgreen?style=flat-square" alt="ZK Cryptography" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License" />
+</p>
+
+Adyton is a confidential treasury vault on Starknet. Funds remain privately shielded inside the STRK20 privacy pool. Every outgoing transfer must cryptographically satisfy the vault's onchain spending policy before it can execute: no exceptions, no manual override.
 
 Built directly on [STRK20](https://strk20.starknet.io), Starknet's native privacy pool, integrating canonical cryptographic modules from [`starkware-libs/starknet-privacy`](https://github.com/starkware-libs/starknet-privacy) for the StarkWare Private Sprint.
 
 ---
 
-## The Problem
+## 🏛️ System Architecture
 
-Onchain treasuries force an all-or-nothing choice today. Fully public, and every balance, payment, and counterparty is visible to competitors in real time. Fully opaque, and nobody — investors, DAO members, auditors — can verify the money is being handled honestly.
+```mermaid
+flowchart TD
+    subgraph Client ["Client Layer (Adyton Terminal)"]
+        UI["React 18 + Vite UI"]
+        SDK["STRK20 SDK Engine"]
+        MEM["Pure In-Memory UTXO Vault"]
+        WAL["Session Wallet Auth (Argent X / Braavos)"]
+        UI <--> MEM
+        UI <--> SDK
+        WAL <--> UI
+    end
+
+    subgraph Crypto ["Canonical Cryptographic Modules"]
+        HASH["Hashes: compute_channel_key / compute_note_id / compute_nullifier"]
+        ECDH["STARK Curve ECDH Encryption (Field Arithmetic Mod P)"]
+        SNIP12["SNIP-12 Structured Note Spend Authorization"]
+        SDK <--> HASH
+        SDK <--> ECDH
+        SDK <--> SNIP12
+    end
+
+    subgraph Starknet ["Starknet Layer (Sepolia / Mainnet)"]
+        POOL["STRK20 Privacy Pool (0x0254a... / 0x04033...)"]
+        ANON["Adyton Vault Anonymizer (IVaultAnonymizer)"]
+        POLICY["Onchain Policy Vault (Cap & Allowlist)"]
+        AUDITOR["Auditor Key Registry (K = k * G)"]
+        
+        POOL -- "1. privacy_invoke" --> ANON
+        ANON -- "2. verify_transfer_policy" --> POLICY
+        ANON -- "3. Return OpenNoteDeposit[]" --> POOL
+        ECDH -. "Escrow Viewing Key" .-> AUDITOR
+    end
+
+    subgraph Prover ["ZK Proving & Settlement"]
+        PROVE["Starknet Proving Service"]
+        SNOS["Starknet OS Proof Facts Verification"]
+        SDK --> PROVE
+        PROVE --> SNOS
+        SNOS --> POOL
+    end
+```
+
+---
+
+## 🔒 The Problem
+
+Onchain treasuries force an all-or-nothing choice today. Fully public, and every balance, payment, and counterparty is visible to competitors in real time. Fully opaque, and nobody (investors, DAO members, auditors) can verify the money is being handled honestly.
 
 Adyton removes that trade-off. The vault's holdings and transfers stay private. The fact that it followed its own rules does not have to.
 
 ---
 
-## How It Works
+## ⚡ How It Works
 
-1. **Shield Deposit** — Assets enter the vault as encrypted STRK20 UTXO notes. Each deposit undergoes onchain FPI compliance screening and mints notes via canonical note IDs.
-2. **Configure Policy** — The vault owner sets spending rules onchain: a per-transaction maximum cap (`amount ≤ cap`), an approved-recipient allowlist, and multi-signer thresholds.
-3. **Shielded Transfer with ZK Policy Verification** — Every outgoing payment must satisfy the active spending policy. If it violates the cap, the transaction is rejected. If compliant, the transfer completes privately via STRK20's note-to-note execution.
-4. **Selective Auditor Disclosure** — The vault owner can register an auditor viewing key ($K = k \cdot G$), granting a designated compliance node (e.g. EY, PwC, internal risk) decryption authority over the vault's note history without public block explorer leakage.
+1. **Shield Deposit**: Assets enter the vault as encrypted STRK20 UTXO notes. Each deposit undergoes onchain FPI compliance screening and mints notes via canonical note IDs.
+2. **Configure Policy**: The vault owner sets spending rules onchain: a per-transaction maximum cap (`amount <= cap`), an approved-recipient allowlist, and multi-signer thresholds.
+3. **Shielded Transfer with ZK Policy Verification**: Every outgoing payment must satisfy the active spending policy. If it violates the cap, the transaction is rejected client-side before submission. If compliant, the transfer completes privately via STRK20's note-to-note execution.
+4. **Selective Auditor Disclosure**: The vault owner can register an auditor viewing key ($K = k \cdot G$), granting a designated compliance node (e.g. EY, PwC, internal risk) decryption authority over the vault's note history without public block explorer leakage.
 
 ---
 
-## What's Public vs. Private
+## 📊 What Is Public vs. Private
 
 | Action | Public on Starknet | Shielded (Private inside Adyton) |
 | :--- | :--- | :--- |
@@ -43,7 +100,7 @@ Adyton removes that trade-off. The vault's holdings and transfers stay private. 
 
 ---
 
-## Verified Protocol Deployments & Pool Addresses
+## 🌐 Verified Protocol Deployments & Pool Addresses
 
 | Network | Privacy Pool Contract Address | Class Hash | Verified via RPC |
 | :--- | :--- | :--- | :---: |
@@ -52,7 +109,7 @@ Adyton removes that trade-off. The vault's holdings and transfers stay private. 
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Adyton/
@@ -99,7 +156,21 @@ Adyton/
 
 ---
 
-## Getting Started
+## 🛠️ Technology Stack
+
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Blockchain** | Starknet L2 | High-throughput validity rollup |
+| **Privacy Engine** | STRK20 Pool | Native ZK-STARK confidential note pool |
+| **Smart Contracts** | Cairo 2.x | Policy Vault and Invoke Anonymizer adapter |
+| **SDK & Math** | `@starkware-libs/starknet-privacy` | Canonical hash tags, ECDH, and note serialization |
+| **Frontend Framework** | React 18 + Vite 5 | Reactive client with in-memory state architecture |
+| **Language** | TypeScript 5 | End-to-end type safety |
+| **Styling** | Custom Chamber CSS | High-density institutional treasury design system |
+
+---
+
+## 🚀 Getting Started
 
 ### 1. Install Dependencies
 ```bash
@@ -138,6 +209,6 @@ Open **[http://127.0.0.1:3000](http://127.0.0.1:3000)** in your browser to launc
 
 ---
 
-## License
+## 📄 License
 
-MIT — see [LICENSE](./LICENSE).
+MIT: see [LICENSE](./LICENSE).
